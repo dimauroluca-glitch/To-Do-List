@@ -11,7 +11,7 @@ function ottieniUserId() {
 
 const MY_USER_ID = ottieniUserId();
 
-// 1. SALVATAGGIO AUTOMATICO AGGIORNATO (Raccoglie testo e stato check)
+// 1. SALVATAGGIO AUTOMATICO (Corretto grupo -> gruppo)
 function salvaInAutomatico() {
     if (isLoading) return;
 
@@ -19,7 +19,7 @@ function salvaInAutomatico() {
     const listaOggetti = [];
 
     gruppi.forEach(gruppo => {
-        const input = grupo.querySelector('.input');
+        const input = gruppo.querySelector('.input'); // <-- Corretto qui!
         const bottoneCheck = gruppo.querySelector('.check');
         
         if (input && input.value.trim() !== "") {
@@ -45,7 +45,7 @@ function salvaInAutomatico() {
     .catch(error => console.error("Errore salvataggio automatico:", error));
 }
 
-// 2. FUNZIONE GENERAZIONE INPUT MODIFICATA (Accetta parametri per il ripristino)
+// 2. FUNZIONE GENERAZIONE INPUT
 function addInput(testoIniziale = '', spuntatoIniziale = false){
     const inputGroup = document.createElement('div');
     inputGroup.classList.add('input-group');
@@ -54,7 +54,7 @@ function addInput(testoIniziale = '', spuntatoIniziale = false){
     newInput.type = 'text';
     newInput.placeholder = '';
     newInput.classList.add('input');
-    newInput.value = testoIniziale; // Imposta il vecchio testo se esiste
+    newInput.value = testoIniziale;
     
     newInput.onchange = function() {
         salvaInAutomatico();
@@ -64,7 +64,6 @@ function addInput(testoIniziale = '', spuntatoIniziale = false){
     complete.textContent = '✓';
     complete.classList.add('check');
     
-    // Funzione per applicare lo stile grafico del completamento
     function applicaStileStato(isComplete) {
         if(isComplete){
             complete.dataset.complete = 'true';
@@ -81,7 +80,6 @@ function addInput(testoIniziale = '', spuntatoIniziale = false){
         }
     }
 
-    // Applica lo stato iniziale (utile per quando si carica dal database)
     applicaStileStato(spuntatoIniziale);
 
     complete.onclick = function(){
@@ -108,7 +106,7 @@ function addInput(testoIniziale = '', spuntatoIniziale = false){
 
 document.getElementById('addInput').addEventListener('click', () => addInput());
 
-// 3. FUNZIONE CARICAMENTO MODIFICATA (Passa testo e stato alla riga)
+// 3. FUNZIONE CARICAMENTO
 function caricaDatiDaMongoDB() {
     isLoading = true;
 
@@ -125,7 +123,6 @@ function caricaDatiDaMongoDB() {
             document.getElementById('inputContainer').innerHTML = '';
             
             data.elementi.forEach(elemento => {
-                // Passa sia il testo che lo stato salvato (true/false)
                 addInput(elemento.testo, elemento.completato); 
             });
         }
