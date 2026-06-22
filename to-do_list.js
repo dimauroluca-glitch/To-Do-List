@@ -46,24 +46,31 @@ function salvaInAutomatico() {
 }
 
 // 2. FUNZIONE GENERAZIONE INPUT
-function addInput(testoIniziale = '', spuntatoIniziale = false){
+function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = ''){
     const inputGroup = document.createElement('div');
     inputGroup.classList.add('input-group');
-    
+    const dateInput = document.createElement('input');
+    dateInput.type = 'date';
+    dateInput.classList.add('date-input');
+    if (dataIniziale === '') {
+        dateInput.value = new Date().toISOString().split('T')[0];
+    } else {
+        dateInput.value = dataIniziale;
+    }
+    dateInput.onchange = function() {
+        salvaInAutomatico();
+    };
     const newInput = document.createElement('input');
     newInput.type = 'text';
     newInput.placeholder = '';
     newInput.classList.add('input');
     newInput.value = testoIniziale;
-    
     newInput.onchange = function() {
         salvaInAutomatico();
     };
-
     const complete = document.createElement('button');
     complete.textContent = '✓';
     complete.classList.add('check');
-    
     function applicaStileStato(isComplete) {
         if(isComplete){
             complete.dataset.complete = 'true';
@@ -71,23 +78,22 @@ function addInput(testoIniziale = '', spuntatoIniziale = false){
             newInput.style.backgroundColor = '#28a745';
             newInput.style.borderColor = '#28a745';
             newInput.disabled = true;
+            dateInput.disabled = true;
         } else {
             complete.dataset.complete = 'false';
             complete.style.backgroundColor = '#28a745';
             newInput.style.backgroundColor = '#ffffff';
             newInput.style.borderColor = '#ffffff';
             newInput.disabled = false;
+            dateInput.disabled = false;
         }
     }
-
     applicaStileStato(spuntatoIniziale);
-
     complete.onclick = function(){
         const nuovoStato = complete.dataset.complete !== 'true';
         applicaStileStato(nuovoStato);
         salvaInAutomatico();
     };
-
     const deleteBtn = document.createElement('button');
     deleteBtn.textContent = 'Elimina';
     deleteBtn.classList.add('delete');
@@ -95,17 +101,14 @@ function addInput(testoIniziale = '', spuntatoIniziale = false){
         inputGroup.remove();
         salvaInAutomatico();
     }
-
+    inputGroup.appendChild(dateInput);
     inputGroup.appendChild(newInput);
     inputGroup.appendChild(complete);
     inputGroup.appendChild(deleteBtn);
     document.getElementById('inputContainer').appendChild(inputGroup);
-    
     salvaInAutomatico();
 }
-
 document.getElementById('addInput').addEventListener('click', () => addInput());
-
 // 3. FUNZIONE CARICAMENTO
 function caricaDatiDaMongoDB() {
     isLoading = true;
@@ -132,5 +135,4 @@ function caricaDatiDaMongoDB() {
         isLoading = false;
     });
 }
-
 window.addEventListener('DOMContentLoaded', caricaDatiDaMongoDB);
