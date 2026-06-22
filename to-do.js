@@ -6,9 +6,10 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI;
 
-// 1. DEFINIZIONE DEL MODELLO (Aggiornato per salvare la lista di elementi)
+// 1. MODELLO AGGIORNATO CON USERID
 const ListaSchema = new mongoose.Schema({
-    elementi: [String], // Array di stringhe per salvare i testi dei tuoi input
+    userId: { type: String, required: true }, // Identifica il dispositivo
+    elementi: [String],
     data: { type: Date, default: Date.now }
 });
 const Lista = mongoose.model('Lista', ListaSchema);
@@ -22,33 +23,39 @@ if (!MONGODB_URI) {
         .catch(err => console.error('🔴 Errore MongoDB:', err));
 }
 
-// 3. MIDDLEWARE
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 
-// 4. ROTTA PER SALVARE O AGGIORNARE LA LISTA
+// 4. ROTTA PER SALVARE LA LISTA DI UNO SPECIFICO UTENTE
 app.post('/invia-dati', async (req, res) => {
     try {
-        // Creiamo un nuovo documento con l'array "elementi" inviato dal frontend
-        const nuovaLista = new Lista({
-            elementi: req.body.elementi
-        });
-        await nuovaLista.save();
-        res.status(200).send("Dati salvati con successo nel database cloud!");
+        const { userId, elementi } = req.body;
+        if (!userId) return res.status(400).send("ID utente mancante.");
+
+        // Cerca se esiste già una lista per questo utente e la aggiorna, altrimenti ne crea una nuova
+        await Lista.findOneAndUpdate(
+            { userId: userId },
+            { elementi: elementi, data: Date.now() },
+            { upsert: true, new: true }
+        );
+
+        res.status(200).send("Dati salvati con successo!");
     } catch (error) {
         console.error("Errore salvataggio:", error);
-        res.status(500).send("Errore durante il salvataggio dei dati.");
+        res.status(500).send("Errore durante il salvataggio.");
     }
 });
 
-// 5. ROTTA PER RECUPERARE LA LISTA (Sincronizzata con il modello Lista)
-app.get('/prendi-dati', async (req, res) => {
+// 5. ROTTA PER RECUPERARE LA LISTA DI UNO SPECIFICO UTENTE
+app.post('/prendi-dati', async (req, res) => {
     try {
-        // Cerca l'ultimo inserimento nel database ordinando per data decrescente
-        const ultimaLista = await Lista.findOne().sort({ data: -1 });
+        const { userId } = req.body;
+        if (!userId) return res.status(400).send("ID utente mancante.");
+
+        const ultimaLista = await Lista.findOne({ userId: userId });
         if (!ultimaLista) {
-            return res.status(200).json({ elementi: [] }); // Se il DB è vuoto, manda un array vuoto
+            return res.status(200).json({ elementi: [] });
         }
         res.status(200).json(ultimaLista);
     } catch (error) {
@@ -57,10 +64,8 @@ app.get('/prendi-dati', async (req, res) => {
     }
 });
 
-// 6. AVVIO DEL SERVER
 app.listen(PORT, () => {
     console.log(`=============================================`);
     console.log(` Server attivo con successo!`);
-    console.log(` Apri il browser su: http://localhost:${PORT}`);
     console.log(`=============================================`);
 });
