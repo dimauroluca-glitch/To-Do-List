@@ -3,13 +3,13 @@ const path = require('path');
 const mongoose = require('mongoose');
 const app = express();
 const PORT = process.env.PORT || 3000;
-const MONGODB_URI = "mongodb+srv:lucadimauro2009_db_user:BzqpaitwyKkNSmpk@cluster0.xezpfwy.mongodb.net/?appName=Cluster0";
+const MONGODB_URI = process.env.MONGODB_URI;
 if (!MONGODB_URI) {
-    console.error("ATTENZIONE: MONGODB_URI non configurato nelle variabili d'ambiente!");
+    console.error("ERRORE: MONGODB_URI non configurata su Render!");
 } else {
     mongoose.connect(MONGODB_URI)
-        .then(() => console.log(' Database MongoDB collegato con successo!'))
-        .catch(err => console.error(' Errore di connessione al Database:', err));
+        .then(() => console.log('🟢 MongoDB collegato con successo!'))
+        .catch(err => console.error('🔴 Errore MongoDB:', err));
 }
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
