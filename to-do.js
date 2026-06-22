@@ -3,7 +3,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 const app = express();
 const PORT = process.env.PORT || 3000;
-const MONGODB_URI = mongodb+srv:lucadimauro2009_db_user:BzqpaitwyKkNSmpk@cluster0.xezpfwy.mongodb.net/?appName=Cluster0;
+const MONGODB_URI = "mongodb+srv:lucadimauro2009_db_user:BzqpaitwyKkNSmpk@cluster0.xezpfwy.mongodb.net/?appName=Cluster0";
 if (!MONGODB_URI) {
     console.error("ATTENZIONE: MONGODB_URI non configurato nelle variabili d'ambiente!");
 } else {
