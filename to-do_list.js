@@ -83,3 +83,32 @@ function addInput(){
 }
 
 document.getElementById('addInput').addEventListener('click', addInput);
+// Funzione che scarica i dati da MongoDB e ripopola la pagina
+function caricaDatiDaMongoDB() {
+    fetch('/prendi-dati')
+        .then(response => response.json())
+        .then(data => {
+            // Se ci sono elementi salvati nel database
+            if (data && data.elementi && data.elementi.length > 0) {
+                // Svuota prima il contenitore per sicurezza
+                document.getElementById('inputContainer').innerHTML = '';
+                
+                // Per ogni testo salvato, crea un nuovo input e inserisci il testo
+                data.elementi.forEach(testo => {
+                    // Usiamo la tua funzione originale per creare la riga
+                    addInput(); 
+                    
+                    // Prendiamo l'ultimo input appena creato e ci scriviamo dentro il testo memorizzato
+                    const tuttiGliInput = document.querySelectorAll('.input-group .input');
+                    const ultimoInputCreato = tuttiGliInput[tuttiGliInput.length - 1];
+                    if (ultimoInputCreato) {
+                        ultimoInputCreato.value = testo;
+                    }
+                });
+            }
+        })
+        .catch(error => console.error("Errore nel caricamento iniziale:", error));
+}
+
+// Avvia il caricamento automatico dei dati NON APPENA la pagina si è aperta del tutto
+window.addEventListener('DOMContentLoaded', caricaDatiDaMongoDB);
