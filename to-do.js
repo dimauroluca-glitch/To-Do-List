@@ -6,10 +6,13 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI;
 
-// 1. MODELLO AGGIORNATO CON USERID
+// 1. MODELLO AGGIORNATO (elementi ora è un array di oggetti con testo e completato)
 const ListaSchema = new mongoose.Schema({
-    userId: { type: String, required: true }, // Identifica il dispositivo
-    elementi: [String],
+    userId: { type: String, required: true },
+    elementi: [{
+        testo: String,
+        completato: Boolean
+    }],
     data: { type: Date, default: Date.now }
 });
 const Lista = mongoose.model('Lista', ListaSchema);
@@ -27,13 +30,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 
-// 4. ROTTA PER SALVARE LA LISTA DI UNO SPECIFICO UTENTE
+// 4. ROTTA PER SALVARE LA LISTA
 app.post('/invia-dati', async (req, res) => {
     try {
         const { userId, elementi } = req.body;
         if (!userId) return res.status(400).send("ID utente mancante.");
 
-        // Cerca se esiste già una lista per questo utente e la aggiorna, altrimenti ne crea una nuova
         await Lista.findOneAndUpdate(
             { userId: userId },
             { elementi: elementi, data: Date.now() },
@@ -47,7 +49,7 @@ app.post('/invia-dati', async (req, res) => {
     }
 });
 
-// 5. ROTTA PER RECUPERARE LA LISTA DI UNO SPECIFICO UTENTE
+// 5. ROTTA PER RECUPERARE LA LISTA
 app.post('/prendi-dati', async (req, res) => {
     try {
         const { userId } = req.body;
@@ -69,3 +71,4 @@ app.listen(PORT, () => {
     console.log(` Server attivo con successo!`);
     console.log(`=============================================`);
 });
+
