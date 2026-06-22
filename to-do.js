@@ -43,7 +43,21 @@ app.post('/invia-dati', async (req, res) => {
     }
 });
 
-// 5. AVVIO DEL SERVER
+// NUOVA ROTTA: Prende l'ultima lista salvata su MongoDB e la manda al browser
+app.get('/prendi-dati', async (req, res) => {
+    try {
+        // Cerca l'ultimo documento inserito nel database
+        const ultimaLista = await Lista.findOne().sort({ data: -1 });
+        if (!ultimaLista) {
+            return res.status(200).json({ elementi: [] }); // Se il DB è vuoto, manda una lista vuota
+        }
+        res.status(200).json(ultimaLista);
+    } catch (error) {
+        console.error("Errore nel recupero dei dati:", error);
+        res.status(500).send("Errore nel recupero dei dati.");
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`=============================================`);
     console.log(` Server attivo con successo!`);
