@@ -13,7 +13,9 @@
             margin: 0;
             background: linear-gradient(135deg, #4ed310, #0d3cd6, #cf0baf);
             color: white;
+            box-sizing: border-box;
             font-family: Arial;
+            padding: 20px;
         }
         .container{
             background-color: black;
@@ -139,10 +141,18 @@
                 align-items: center;
             }
             body {
+                min-height: 100vh;
                 font-size: 16px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
                 padding: 15px;
-                margin: 0;
-                overflow-x: hidden;
+            }
+            .container{
+                margin: auto 0;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
             }
 }
         </style>
