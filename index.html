@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="it">
+    <head><title>To-Do List</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #4ed310, #0d3cd6, #cf0baf);
+            color: white;
+            font-family: Arial;
+        }
+        .container{
+            background-color: black;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 400px;
+        }
+        .center{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        button{
+            margin-top: 20px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            background-color: #4ed310;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 2px;
+        }
+        button:hover{
+            background-color: #4ed310;
+            transform: translateY(-2px);
+        }
+        .input{
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid white;
+            border-radius: 5px;
+            background-color: white;
+            color: black;
+            font-family: monospace;
+            box-sizing: border-box;
+            flex: 1;
+        }
+        .input:focus{
+            outline: none;
+            border-color: #007bff;
+        }
+        #inputContainer{
+            margin-top: 20px;
+        }
+        .input-group{
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .delete{
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 10px;
+            margin-top: 2px;
+        }
+        .delete:hover{
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
+        .check{
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 10px;
+            margin-top: 2px;
+        }
+        .check:hover{
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+        </style>
+        <body>
+            <div class="container">
+                <div class="center">
+                    <h1>TO-DO LIST</h1>
+                    <button id="addInput">+ Aggiungi</button>
+                </div>
+                <div id="inputContainer"></div>
+            </div>
+        </body>
+        <script src="to-do_list.js"></script>
+    </head>
