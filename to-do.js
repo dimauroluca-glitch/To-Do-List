@@ -6,15 +6,14 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI;
 
-// 1. DEFINIZIONE DEL MODELLO (Spostato all'inizio)
-const ContattoSchema = new mongoose.Schema({
-    nome: String,
-    email: String,
+// 1. DEFINIZIONE DEL MODELLO (Aggiornato per salvare la lista di elementi)
+const ListaSchema = new mongoose.Schema({
+    elementi: [String], // Array di stringhe per salvare i testi dei tuoi input
     data: { type: Date, default: Date.now }
 });
-const Contatto = mongoose.model('Contatto', ContattoSchema);
+const Lista = mongoose.model('Lista', ListaSchema);
 
-// 2. CONVERSIONE E CONNESSIONE AL DATABASE (Adesso la sintassi è corretta)
+// 2. CONNESSIONE AL DATABASE
 if (!MONGODB_URI) {
     console.error("ERRORE: MONGODB_URI non configurata su Render!");
 } else {
@@ -28,14 +27,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 
-// 4. ROTTA PER RICEVERE E SALVARE I DATI
+// 4. ROTTA PER SALVARE O AGGIORNARE LA LISTA
 app.post('/invia-dati', async (req, res) => {
     try {
-        const nuovoContatto = new Contatto({
-            nome: req.body.nome,
-            email: req.body.email
+        // Creiamo un nuovo documento con l'array "elementi" inviato dal frontend
+        const nuovaLista = new Lista({
+            elementi: req.body.elementi
         });
-        await nuovoContatto.save();
+        await nuovaLista.save();
         res.status(200).send("Dati salvati con successo nel database cloud!");
     } catch (error) {
         console.error("Errore salvataggio:", error);
@@ -43,13 +42,13 @@ app.post('/invia-dati', async (req, res) => {
     }
 });
 
-// NUOVA ROTTA: Prende l'ultima lista salvata su MongoDB e la manda al browser
+// 5. ROTTA PER RECUPERARE LA LISTA (Sincronizzata con il modello Lista)
 app.get('/prendi-dati', async (req, res) => {
     try {
-        // Cerca l'ultimo documento inserito nel database
+        // Cerca l'ultimo inserimento nel database ordinando per data decrescente
         const ultimaLista = await Lista.findOne().sort({ data: -1 });
         if (!ultimaLista) {
-            return res.status(200).json({ elementi: [] }); // Se il DB è vuoto, manda una lista vuota
+            return res.status(200).json({ elementi: [] }); // Se il DB è vuoto, manda un array vuoto
         }
         res.status(200).json(ultimaLista);
     } catch (error) {
@@ -58,6 +57,7 @@ app.get('/prendi-dati', async (req, res) => {
     }
 });
 
+// 6. AVVIO DEL SERVER
 app.listen(PORT, () => {
     console.log(`=============================================`);
     console.log(` Server attivo con successo!`);
