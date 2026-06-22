@@ -29,7 +29,7 @@ app.post('/invia-dati', async (req, res) => {
         await nuovoContatto.save();
         res.status(200).send("Dati salvati con successo nel database cloud!");
     } catch (error) {
-        console.error("Errore salvataggio:", error);
+        console.error("Errore nel salvataggio dei dati:", error);
         res.status(500).send("Errore durante il salvataggio dei dati.");
     }
 });
