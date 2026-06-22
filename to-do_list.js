@@ -1,17 +1,21 @@
+// Variabile di controllo per evitare conflitti durante il caricamento iniziale
+let isLoading = false;
+
 // Funzione per raccogliere i dati e inviarli in automatico a MongoDB
 function salvaInAutomatico() {
+    // Se la pagina sta caricando i dati storici, blocca il salvataggio automatico momentaneamente
+    if (isLoading) return;
+
     const tuttiGliInput = document.querySelectorAll('.input-group .input');
     const listaTesti = [];
 
     tuttiGliInput.forEach(input => {
         const testoPulito = input.value.trim();
-        // Salviamo solo i campi che non sono vuoti
         if (testoPulito !== "") {
             listaTesti.push(testoPulito);
         }
     });
 
-    // Invia i dati a Render in background (senza mostrare fastidiosi alert)
     fetch('/invia-dati', {
         method: 'POST',
         headers: {
@@ -27,7 +31,7 @@ function salvaInAutomatico() {
     .catch(error => console.error("Errore salvataggio automatico:", error));
 }
 
-// Funzione originale modificata per attivare il salvataggio automatico
+// Funzione modificata per generare l'interfaccia
 function addInput(){
     const inputGroup = document.createElement('div');
     inputGroup.classList.add('input-group');
@@ -37,7 +41,7 @@ function addInput(){
     newInput.placeholder = '';
     newInput.classList.add('input');
     
-    // Salva quando l'utente smette di scrivere o cambia input
+    // Salva quando l'utente preme invio o cambia input
     newInput.onchange = function() {
         salvaInAutomatico();
     };
@@ -60,7 +64,6 @@ function addInput(){
             newInput.style.borderColor = '#28a745';
             newInput.disabled = true;
         }
-        // Salva lo stato aggiornato dopo aver cliccato la spunta
         salvaInAutomatico();
     };
 
@@ -69,7 +72,6 @@ function addInput(){
     deleteBtn.classList.add('delete');
     deleteBtn.onclick = function(){
         inputGroup.remove();
-        // Salva lo stato aggiornato dopo aver rimosso l'elemento
         salvaInAutomatico();
     }
 
@@ -78,27 +80,24 @@ function addInput(){
     inputGroup.appendChild(deleteBtn);
     document.getElementById('inputContainer').appendChild(inputGroup);
     
-    // Salva anche quando viene creato un nuovo input vuoto (opzionale)
     salvaInAutomatico();
 }
 
 document.getElementById('addInput').addEventListener('click', addInput);
-// Funzione che scarica i dati da MongoDB e ripopola la pagina
+
+// Funzione che scarica i dati da MongoDB e ripopola la pagina senza creare conflitti
 function caricaDatiDaMongoDB() {
+    isLoading = true; // 1. Attiva il blocco del salvataggio automatico
+
     fetch('/prendi-dati')
         .then(response => response.json())
         .then(data => {
-            // Se ci sono elementi salvati nel database
             if (data && data.elementi && data.elementi.length > 0) {
-                // Svuota prima il contenitore per sicurezza
                 document.getElementById('inputContainer').innerHTML = '';
                 
-                // Per ogni testo salvato, crea un nuovo input e inserisci il testo
                 data.elementi.forEach(testo => {
-                    // Usiamo la tua funzione originale per creare la riga
                     addInput(); 
                     
-                    // Prendiamo l'ultimo input appena creato e ci scriviamo dentro il testo memorizzato
                     const tuttiGliInput = document.querySelectorAll('.input-group .input');
                     const ultimoInputCreato = tuttiGliInput[tuttiGliInput.length - 1];
                     if (ultimoInputCreato) {
@@ -107,8 +106,11 @@ function caricaDatiDaMongoDB() {
                 });
             }
         })
-        .catch(error => console.error("Errore nel caricamento iniziale:", error));
+        .catch(error => console.error("Errore nel caricamento iniziale:", error))
+        .finally(() => {
+            isLoading = false; // 2. Disattiva il blocco: da adesso in poi i cambi salveranno sul DB
+        });
 }
 
-// Avvia il caricamento automatico dei dati NON APPENA la pagina si è aperta del tutto
+// Avvia il caricamento automatico
 window.addEventListener('DOMContentLoaded', caricaDatiDaMongoDB);
