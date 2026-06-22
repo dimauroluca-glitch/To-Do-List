@@ -1,15 +1,20 @@
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI;
+
+// 1. DEFINIZIONE DEL MODELLO (Spostato all'inizio)
 const ContattoSchema = new mongoose.Schema({
     nome: String,
     email: String,
     data: { type: Date, default: Date.now }
 });
 const Contatto = mongoose.model('Contatto', ContattoSchema);
+
+// 2. CONVERSIONE E CONNESSIONE AL DATABASE (Adesso la sintassi è corretta)
 if (!MONGODB_URI) {
     console.error("ERRORE: MONGODB_URI non configurata su Render!");
 } else {
@@ -17,9 +22,13 @@ if (!MONGODB_URI) {
         .then(() => console.log('🟢 MongoDB collegato con successo!'))
         .catch(err => console.error('🔴 Errore MongoDB:', err));
 }
+
+// 3. MIDDLEWARE
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
+
+// 4. ROTTA PER RICEVERE E SALVARE I DATI
 app.post('/invia-dati', async (req, res) => {
     try {
         const nuovoContatto = new Contatto({
@@ -29,10 +38,12 @@ app.post('/invia-dati', async (req, res) => {
         await nuovoContatto.save();
         res.status(200).send("Dati salvati con successo nel database cloud!");
     } catch (error) {
-        console.error("Errore nel salvataggio dei dati:", error);
+        console.error("Errore salvataggio:", error);
         res.status(500).send("Errore durante il salvataggio dei dati.");
     }
 });
+
+// 5. AVVIO DEL SERVER
 app.listen(PORT, () => {
     console.log(`=============================================`);
     console.log(` Server attivo con successo!`);
