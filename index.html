@@ -65,7 +65,12 @@
             border-color: #007bff;
         }
         #inputContainer{
-            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: auto;
+            margin-left: -80px;
+            margin-right: -80px;
         }
         .input-group{
             display: flex;
@@ -105,6 +110,31 @@
         .check:hover{
             background-color: #218838;
             transform: translateY(-2px);
+        }
+        .date-input {
+            padding: 10px 14px;
+            font-size: 16px;
+            border: 1px solid #fffefe;
+            border-radius: 6px;
+            outline: none;
+            background-color: #000000;
+            color: #ffffff;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            margin-right: 10px;
+        }
+        .date-input:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        .date-input:disabled {
+            background-color: #1e7e34 !important;
+            border-color: #1e7e34;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: not-allowed;
+        }
+        .date-input::-webkit-calendar-picker-indicator {
+            filter: invert(1);
         }
         @media (max-width: 768px){
             button{
@@ -163,7 +193,8 @@
                     <button id="addInput">+ Aggiungi</button>
                 </div>
                 <div id="inputContainer"></div>
+                <div id="areaData"></div>
             </div>
         </body>
-        <script src="to-do_list.js"></script>
+        <script src="to-do.js"></script>
     </head>
