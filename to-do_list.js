@@ -97,6 +97,10 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
             newInput.style.borderColor = '#28a745';
             newInput.disabled = true;
             dateInput.disabled = true;
+            inputGroup.classList.add('fade-out-complete');
+            setTimeout(() => {
+                inputGroup.remove();
+            }, 500);
         } else {
             complete.dataset.complete = 'false';
             complete.style.backgroundColor = '#28a745';
@@ -116,8 +120,20 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
     deleteBtn.textContent = 'Elimina';
     deleteBtn.classList.add('delete');
     deleteBtn.onclick = function(){
-        inputGroup.remove();
-        salvaInAutomatico();
+        newInput.style.backgroundColor = '#dc3545';
+        newInput.style.borderColor = '#dc3545';
+        newInput.style.color = '#ffffff';
+        dateInput.style.backgroundColor = '#dc3545';
+        dateInput.style.borderColor = '#dc3545';
+        dateInput.style.color = '#ffffff';
+        dateInput.classList.add('force-red');
+        newInput.disabled = true;
+        dateInput.disabled = true;
+        inputGroup.classList.add('fade-out-delete');
+        setTimeout(() => {
+            inputGroup.remove();
+            salvaInAutomatico();
+        }, 500);
     }
     inputGroup.appendChild(dateInput);
     inputGroup.appendChild(newInput);
