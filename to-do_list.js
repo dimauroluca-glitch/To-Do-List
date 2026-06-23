@@ -8,7 +8,7 @@ function ottieniUserId() {
     return userId;
 }
 const MY_USER_ID = ottieniUserId();
-// 1. SALVATAGGIO AUTOMATICO (Incluso campo Data e invio a OneSignal)
+// 1. SALVATAGGIO AUTOMATICO (Incluso campo Data)
 function salvaInAutomatico() {
     if (isLoading) return;
     const gruppi = document.querySelectorAll('.input-group');
@@ -17,14 +17,17 @@ function salvaInAutomatico() {
         const input = gruppo.querySelector('.input'); 
         const bottoneCheck = gruppo.querySelector('.check');
         const dateInput = gruppo.querySelector('.date-input');
-        if (input && input.value.trim() !== "") {
+        if (input) {
+            const testoTask = input.value.trim();
+            const isCompletato = bottoneCheck.dataset.complete === 'true';
+            const dataScadenza = dateInput ? dateInput.value : "";
             listaOggetti.push({
-                testo: input.value.trim(),
-                completato: bottoneCheck.dataset.complete === 'true',
-                data: dateInput ? dateInput.value : ""
+                testo: testoTask,
+                completato: isCompletato,
+                data: dataScadenza
             });
-            if (bottoneCheck.dataset.complete !== 'true' && dateInput && dateInput.value) {
-                programmaNotificaSuOneSignal(input.value.trim(), dateInput.value);
+            if (testoTask !== "" && !isCompletato && dataScadenza) {
+                programmaNotificaSuBackend(testoTask, dataScadenza);
             }
         }
     });
@@ -42,26 +45,22 @@ function salvaInAutomatico() {
     })
     .catch(error => console.error("Errore salvataggio automatico:", error));
 }
-function programmaNotificaSuOneSignal(testoTask, dataScadenza) {
-    const dataFormattata = `${dataScadenza} 09:00:00 GMT+0200`; 
-    fetch('https://onesignal.com', {
+function programmaNotificaSuBackend(testoTask, dataScadenza) {
+    fetch('/programma-notifica', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Basic os_v2_app_htrzhsd5sngdpkd7ujulmnbwaixvezaqpwqujh4rfnmgxm2hf7vrjysi3mzxjdjjjlmpu4hu2kzfvwwzntlof6wlxtodtzolfv4p2ry'
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            app_id: "3ce393c8-7d93-4c37-a87f-a268b6343602",
-            include_aliases: { "external_id": [MY_USER_ID] },
-            target_channel: "push",
-            contents: { "it": `Promemoria: ${testoTask}`, "en": `Reminder: ${testoTask}` },
-            headings: { "it": "Task in scadenza oggi!", "en": "Task deadline today!" },
-            send_after: dataFormattata
+            userId: MY_USER_ID,
+            testo: testoTask,
+            data: dataScadenza
         })
     })
-    .then(res => res.json())
-    .then(risultato => console.log("📅 Notifica programmata su cloud OneSignal:", risultato))
-    .catch(err => console.error("Errore programmazione OneSignal:", err));
+    .then(res => {
+        if (res.ok) console.log("📅 Richiesta notifica inviata al server backend.");
+    })
+    .catch(err => console.error("Errore comunicazione notifica:", err));
 }
 // 2. FUNZIONE GENERAZIONE INPUT
 function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = ''){
@@ -80,12 +79,12 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
     };
     const newInput = document.createElement('input');
     newInput.type = 'text';
-    newInput.placeholder = '';
+    newInput.placeholder = 'Scrivi un task...';
     newInput.classList.add('input');
     newInput.value = testoIniziale;
-    newInput.onchange = function() {
+    newInput.oninput = function() {
         salvaInAutomatico();
-    };
+    }
     const complete = document.createElement('button');
     complete.textContent = '✓';
     complete.classList.add('check');  
@@ -141,7 +140,7 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
             inputGroup.remove();
             salvaInAutomatico();
         }, 500);
-    }
+    };
     inputGroup.appendChild(dateInput);
     inputGroup.appendChild(newInput);
     inputGroup.appendChild(complete);
@@ -175,6 +174,7 @@ function caricaDatiDaMongoDB() {
     });
 }
 window.addEventListener('DOMContentLoaded', caricaDatiDaMongoDB);
+// 4. GESTIONE DI ONESIGNAL
 window.OneSignalDeferred = window.OneSignalDeferred || [];
 window.OneSignalDeferred.push(function(OneSignal) {
     const bottone = document.getElementById('btnNotifiche');
@@ -194,15 +194,13 @@ window.OneSignalDeferred.push(function(OneSignal) {
             try {
                 await OneSignal.Notifications.requestPermission();
                 if (Notification.permission === 'granted') {
-                    alert("🟢 Notifiche attivate con successo! Riceverai i promemoria a pagina chiusa.");
-                } else {
-                    bottone.style.display = 'block';
+                    alert("🟢 Notifiche attivate con successo! Riceverai i promemoria.");
                 }
-            } catch (errore) {
+                gestisciVisibilitaBottone();
+            } catch (err) {
+                console.error("Errore attivazione notifiche:", err);
                 bottone.style.display = 'block';
-                console.error("Errore durante la richiesta dei permessi:", errore);
             }
         };
-        OneSignal.Notifications.addEventListener("permissionChange", gestisciVisibilitaBottone);
     }
 });
