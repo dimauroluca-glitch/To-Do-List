@@ -88,6 +88,85 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
     const complete = document.createElement('button');
     complete.textContent = '✓';
     complete.classList.add('check');  
+    function creaStrutturaCronologia() {
+        let cronologiaTitolo = document.getElementById('titoloCronologia');
+        if (!cronologiaTitolo) {
+            cronologiaTitolo = document.createElement('h3');
+            cronologiaTitolo.id = 'titoloCronologia';
+            cronologiaTitolo.textContent = 'CRONOLOGIA: ';
+            cronologiaTitolo.style.marginBottom = "5px"; 
+            cronologiaTitolo.style.marginTop = "20px";
+            const btnSvuota = document.createElement('button');
+            btnSvuota.textContent = 'ELIMINA CRONOLOGIA';
+            btnSvuota.style.backgroundColor = '#dc3545';
+            btnSvuota.style.fontSize = '12px';
+            btnSvuota.style.marginLeft = '15px';
+            btnSvuota.style.padding = '4px 8px';
+            btnSvuota.onclick = function() {
+                const cronologia = document.getElementById('cronologiaContainer');
+                if (cronologia) {
+                    const elementi = cronologia.querySelectorAll('.input-group');
+                    elementi.forEach(elemento => {
+                        const inputTesto = elemento.querySelector('.input');
+                        const inputData = elemento.querySelector('.date-input');
+                        if (inputTesto) {
+                            inputTesto.style.backgroundColor = '#dc3545';
+                            inputTesto.style.borderColor = '#dc3545';
+                        }
+                        if (inputData) {
+                            inputData.style.setProperty('background-color', '#dc3545', 'important');
+                            inputData.style.setProperty('border-color', '#dc3545', 'important');
+                        }
+                        elemento.classList.add('fade-out-delete');
+                    });
+                    setTimeout(() => {
+                        cronologia.remove();
+                        cronologiaTitolo.remove();
+                        salvaInAutomatico();
+                    }, 500);
+                } else {
+                    cronologiaTitolo.remove();
+                    salvaInAutomatico();
+                }
+            };
+            cronologiaTitolo.appendChild(btnSvuota);
+            document.getElementById('inputContainer').after(cronologiaTitolo);
+        }
+        let cronologia = document.getElementById('cronologiaContainer');
+        if (!cronologia) {
+            cronologia = document.createElement('div');
+            cronologia.id = 'cronologiaContainer';
+            cronologiaTitolo.after(cronologia);
+        }
+        return cronologia;
+    }
+    function aggiungiCestinoSingolo() {
+        const trashBtn = document.createElement('button');
+        trashBtn.textContent = '🗑️';
+        trashBtn.style.marginLeft = "10px";
+        trashBtn.style.marginTop = "5px";
+        trashBtn.classList.add('delete-single-history');
+        trashBtn.style.backgroundColor = '#dc3545';
+        trashBtn.style.padding = '8px 12px';
+        trashBtn.onclick = function() {
+            newInput.style.backgroundColor = '#dc3545';
+            newInput.style.borderColor = '#dc3545';
+            dateInput.style.setProperty('background-color', '#dc3545', 'important');
+            dateInput.style.setProperty('border-color', '#dc3545', 'important'); 
+            inputGroup.classList.add('fade-out-delete');
+            setTimeout(() => {
+                inputGroup.remove();
+                const cronologia = document.getElementById('cronologiaContainer');
+                const cronologiaTitolo = document.getElementById('titoloCronologia');
+                if (cronologia && cronologia.children.length === 0) {
+                    cronologia.remove();
+                    if (cronologiaTitolo) cronologiaTitolo.remove();
+                }
+                salvaInAutomatico();
+            }, 500);
+        };
+        inputGroup.appendChild(trashBtn);
+    }
     function applicaStileStato(isComplete) {
         if(isComplete){
             complete.dataset.complete = 'true';
@@ -102,7 +181,18 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
             dateInput.disabled = true;
             inputGroup.classList.add('fade-out-complete');
             setTimeout(() => {
-                inputGroup.remove();
+                if (newInput.value.trim() === '') {
+                    inputGroup.remove();
+                    salvaInAutomatico();
+                    return; 
+                }
+                const cronologia = creaStrutturaCronologia();
+                complete.remove();
+                deleteBtn.remove();
+                aggiungiCestinoSingolo();
+                inputGroup.classList.remove('fade-out-complete'); 
+                cronologia.appendChild(inputGroup); 
+                salvaInAutomatico();
             }, 500);
         } else {
             complete.dataset.complete = 'false';
@@ -145,7 +235,15 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
     inputGroup.appendChild(newInput);
     inputGroup.appendChild(complete);
     inputGroup.appendChild(deleteBtn);
-    document.getElementById('inputContainer').appendChild(inputGroup);
+    if (spuntatoIniziale && testoIniziale.trim() !== '') {
+        complete.remove();
+        deleteBtn.remove();
+        aggiungiCestinoSingolo();
+        const cronologia = creaStrutturaCronologia();
+        cronologia.appendChild(inputGroup);
+    } else {
+        document.getElementById('inputContainer').appendChild(inputGroup);
+    }
     salvaInAutomatico();
 }
 document.getElementById('addInput').addEventListener('click', () => addInput());
