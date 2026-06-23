@@ -1,15 +1,3 @@
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js')
-    .then(reg => {
-      console.log('Service Worker registrato con successo!', reg);
-      // Configura le notifiche push appena il Service Worker è pronto
-      inizializzaPush(reg);
-    })
-    .catch(err => console.error('Errore registrazione Service Worker:', err));
-}
-if (Notification.permission !== 'granted') {
-  Notification.requestPermission();
-}
 let isLoading = false;
 function ottieniUserId() {
     let userId = localStorage.getItem('todo_user_id');
@@ -20,47 +8,13 @@ function ottieniUserId() {
     return userId;
 }
 const MY_USER_ID = ottieniUserId();
-// Utility per convertire la chiave VAPID del server
-function urlBase64ToUint8Array(base64String) {
-  const padding = '='.repeat((4 - base64String.length % 4) % 4);
-  const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
-  const rawData = window.atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-  for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i);
-  }
-  return outputArray;
-}
-// Richiede l'iscrizione push al browser e la invia al tuo server Node.js
-async function inizializzaPush(reg) {
-  try {
-    const permission = await Notification.requestPermission();
-    if (permission !== 'granted') return;
-    // Chiedi al tuo server la chiave pubblica VAPID (creeremo questa rotta sul server)
-    const res = await fetch('/vapid-key');
-    const { publicKey } = await res.json();
-    const subscription = await reg.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(publicKey)
-    });
-    // Invia i dati di iscrizione al server per associarli a questo utente
-    await fetch('/salva-iscrizione', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: MY_USER_ID, subscription })
-    });
-    console.log("🟢 Dispositivo iscritto alle notifiche push a pagina chiusa.");
-  } catch (err) {
-    console.error("Errore iscrizione push:", err);
-  }
-}
-// 1. SALVATAGGIO AUTOMATICO (Incluso campo Data)
+// 1. SALVATAGGIO AUTOMATICO (Incluso campo Data e invio a OneSignal)
 function salvaInAutomatico() {
     if (isLoading) return;
     const gruppi = document.querySelectorAll('.input-group');
     const listaOggetti = [];
     gruppi.forEach(gruppo => {
-        const input = gruppo.querySelector('.input');
+        const input = gruppo.querySelector('.input'); 
         const bottoneCheck = gruppo.querySelector('.check');
         const dateInput = gruppo.querySelector('.date-input');
         if (input && input.value.trim() !== "") {
@@ -69,6 +23,9 @@ function salvaInAutomatico() {
                 completato: bottoneCheck.dataset.complete === 'true',
                 data: dateInput ? dateInput.value : ""
             });
+            if (bottoneCheck.dataset.complete !== 'true' && dateInput && dateInput.value) {
+                programmaNotificaSuOneSignal(input.value.trim(), dateInput.value);
+            }
         }
     });
     fetch('/invia-dati', {
@@ -80,10 +37,31 @@ function salvaInAutomatico() {
     })
     .then(response => {
         if (response.ok) {
-            console.log("🟢 Database sincronizzato (Testo + Stato + Data).");
+            console.log("🟢 Database MongoDB sincronizzato.");
         }
     })
     .catch(error => console.error("Errore salvataggio automatico:", error));
+}
+function programmaNotificaSuOneSignal(testoTask, dataScadenza) {
+    const dataFormattata = `${dataScadenza} 09:00:00 GMT+0200`; 
+    fetch('https://onesignal.com', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Basic os_v2_app_htrzhsd5sngdpkd7ujulmnbwaixvezaqpwqujh4rfnmgxm2hf7vrjysi3mzxjdjjjlmpu4hu2kzfvwwzntlof6wlxtodtzolfv4p2ry'
+        },
+        body: JSON.stringify({
+            app_id: "3ce393c8-7d93-4c37-a87f-a268b6343602",
+            include_aliases: { "external_id": [MY_USER_ID] },
+            target_channel: "push",
+            contents: { "it": `Promemoria: ${testoTask}`, "en": `Reminder: ${testoTask}` },
+            headings: { "it": "Task in scadenza oggi!", "en": "Task deadline today!" },
+            send_after: dataFormattata
+        })
+    })
+    .then(res => res.json())
+    .then(risultato => console.log("📅 Notifica programmata su cloud OneSignal:", risultato))
+    .catch(err => console.error("Errore programmazione OneSignal:", err));
 }
 // 2. FUNZIONE GENERAZIONE INPUT
 function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = ''){
@@ -149,7 +127,7 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
     salvaInAutomatico();
 }
 document.getElementById('addInput').addEventListener('click', () => addInput());
-// 3. FUNZIONE CARICAMENTO AGGIORNATA
+// 3. FUNZIONE CARICAMENTO DATI DA MONGODB
 function caricaDatiDaMongoDB() {
     isLoading = true;
     fetch('/prendi-dati', {
@@ -166,21 +144,11 @@ function caricaDatiDaMongoDB() {
             data.elementi.forEach(elemento => {
                 addInput(elemento.testo, elemento.completato, elemento.data); 
             });
-            pianificaNotificheLocali(data.elementi);
         }
     })
     .catch(error => console.error("Errore nel caricamento iniziale:", error))
     .finally(() => {
         isLoading = false;
     });
-}
-async function pianificaNotificheLocali(elementi) {
-    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-        const taskAttivi = elementi.filter(e => !e.completato && e.data);
-        navigator.serviceWorker.controller.postMessage({
-            azione: 'configura_scadenze',
-            tasks: taskAttivi
-        });
-    }
 }
 window.addEventListener('DOMContentLoaded', caricaDatiDaMongoDB);
