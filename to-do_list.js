@@ -9,6 +9,60 @@ function ottieniUserId() {
 }
 const MY_USER_ID = ottieniUserId();
 // 1. SALVATAGGIO AUTOMATICO (Incluso campo Data)
+function salvaInAutomatico() {
+    if (isLoading) return;
+    const gruppi = document.querySelectorAll('.input-group');
+    const listaOggetti = [];
+    gruppi.forEach(gruppo => {
+        const input = gruppo.querySelector('.input'); 
+        const bottoneCheck = gruppo.querySelector('.check');
+        const dateInput = gruppo.querySelector('.date-input');
+        if (input) {
+            const testoTask = input.value.trim();
+            const isCompletato = bottoneCheck.dataset.complete === 'true';
+            const dataScadenza = dateInput ? dateInput.value : "";
+            listaOggetti.push({
+                testo: testoTask,
+                completato: isCompletato,
+                data: dataScadenza
+            });
+            if (testoTask !== "" && !isCompletato && dataScadenza) {
+                programmaNotificaSuBackend(testoTask, dataScadenza);
+            }
+        }
+    });
+    fetch('/invia-dati', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userId: MY_USER_ID, elementi: listaOggetti })
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log("🟢 Database MongoDB sincronizzato.");
+        }
+    })
+    .catch(error => console.error("Errore salvataggio automatico:", error));
+}
+function programmaNotificaSuBackend(testoTask, dataScadenza) {
+    fetch('/programma-notifica', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            userId: MY_USER_ID,
+            testo: testoTask,
+            data: dataScadenza
+        })
+    })
+    .then(res => {
+        if (res.ok) console.log("📅 Richiesta notifica inviata al server backend.");
+    })
+    .catch(err => console.error("Errore comunicazione notifica:", err));
+}
+// 2. FUNZIONE GENERAZIONE INPUT
 function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = ''){
     const inputGroup = document.createElement('div');
     inputGroup.classList.add('input-group');
@@ -33,16 +87,24 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
     }
     const complete = document.createElement('button');
     complete.textContent = '✓';
-    complete.classList.add('check');  
+    complete.classList.add('check');
     function creaStrutturaCronologia() {
-        let cronologiaTitoloBox = document.getElementById('cronologiaHeaderBox');
-        if (!cronologiaTitoloBox) {
-            cronologiaTitoloBox = document.createElement('div');
-            cronologiaTitoloBox.id = 'cronologiaHeaderBox';
-            const cronologiaTitolo = document.createElement('h3');
+        let cronologiaHeaderBox = document.getElementById('cronologiaHeaderBox');
+        let cronologiaTitolo = document.getElementById('titoloCronologia');
+        if (!cronologiaHeaderBox) {
+            cronologiaHeaderBox = document.createElement('div');
+            cronologiaHeaderBox.id = 'cronologiaHeaderBox';
+            cronologiaHeaderBox.style.display = "flex";
+            cronologiaHeaderBox.style.flexDirection = "column";
+            cronologiaHeaderBox.style.alignItems = "center";
+            cronologiaHeaderBox.style.width = "100%";
+            cronologiaHeaderBox.style.marginTop = "30px";
+            cronologiaHeaderBox.style.marginBottom = "15px";
+            cronologiaTitolo = document.createElement('h3');
             cronologiaTitolo.id = 'titoloCronologia';
             cronologiaTitolo.textContent = 'CRONOLOGIA:';
-            cronologiaTitolo.style.marginBottom = "5px";
+            cronologiaTitolo.style.margin = "0 0 10px 0";
+            cronologiaTitolo.style.textAlign = "center";
             const btnSvuota = document.createElement('button');
             btnSvuota.id = 'btnSvuotaCronologia';
             btnSvuota.textContent = 'ELIMINA CRONOLOGIA';
@@ -64,60 +126,55 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
                         }
                         elemento.classList.add('fade-out-delete');
                     });
-
                     setTimeout(() => {
                         cronologia.remove();
-                        cronologiaTitoloBox.remove();
+                        cronologiaHeaderBox.remove();
                         salvaInAutomatico();
                     }, 500);
                 } else {
-                    cronologiaTitoloBox.remove();
+                    cronologiaHeaderBox.remove();
                     salvaInAutomatico();
                 }
             };
-            cronologiaTitoloBox.appendChild(cronologiaTitolo);
-            cronologiaTitoloBox.appendChild(btnSvuota);
-            document.getElementById('inputContainer').after(cronologiaTitoloBox);
+            cronologiaHeaderBox.appendChild(cronologiaTitolo);
+            cronologiaHeaderBox.appendChild(btnSvuota);
+            document.getElementById('inputContainer').after(cronologiaHeaderBox);
         }
         let cronologia = document.getElementById('cronologiaContainer');
         if (!cronologia) {
             cronologia = document.createElement('div');
             cronologia.id = 'cronologiaContainer';
-            cronologiaTitoloBox.after(cronologia);
+            cronologiaHeaderBox.after(cronologia);
         }
         return cronologia;
     }
     function aggiungiCestinoSingolo() {
-    const trashBtn = document.createElement('button');
-    trashBtn.textContent = '🗑️';
-    trashBtn.style.marginLeft = "10px";
-    trashBtn.style.marginTop = "5px";
-    trashBtn.classList.add('delete-single-history');
-    trashBtn.style.backgroundColor = '#dc3545';
-    trashBtn.style.padding = '8px 12px';
-    newInput.style.opacity = "1";
-    dateInput.style.opacity = "1";
-    newInput.style.color = "#ffffff";
-    dateInput.style.setProperty('color', '#ffffff', 'important');
-    trashBtn.onclick = function() {
-        newInput.style.backgroundColor = '#dc3545';
-        newInput.style.borderColor = '#dc3545';
-        dateInput.style.setProperty('background-color', '#dc3545', 'important');
-        dateInput.style.setProperty('border-color', '#dc3545', 'important'); 
-        inputGroup.classList.add('fade-out-delete');
-        setTimeout(() => {
-            inputGroup.remove();
-            const cronologia = document.getElementById('cronologiaContainer');
-            const cronologiaTitolo = document.getElementById('titoloCronologia');
-            if (cronologia && cronologia.children.length === 0) {
-                cronologia.remove();
-                if (cronologiaTitolo) cronologiaTitolo.remove();
-            }
-            salvaInAutomatico();
-        }, 500);
-    };
-    inputGroup.appendChild(trashBtn);
-}
+        const trashBtn = document.createElement('button');
+        trashBtn.textContent = '🗑️';
+        trashBtn.style.marginLeft = "10px";
+        trashBtn.style.marginTop = "5px";
+        trashBtn.classList.add('delete-single-history');
+        trashBtn.style.backgroundColor = '#dc3545';
+        trashBtn.style.padding = '8px 12px';
+        trashBtn.onclick = function() {
+            newInput.style.backgroundColor = '#dc3545';
+            newInput.style.borderColor = '#dc3545';
+            dateInput.style.setProperty('background-color', '#dc3545', 'important');
+            dateInput.style.setProperty('border-color', '#dc3545', 'important'); 
+            inputGroup.classList.add('fade-out-delete');
+            setTimeout(() => {
+                inputGroup.remove();
+                const cronologia = document.getElementById('cronologiaContainer');
+                const cronologiaHeaderBox = document.getElementById('cronologiaHeaderBox');
+                if (cronologia && cronologia.children.length === 0) {
+                    cronologia.remove();
+                    if (cronologiaHeaderBox) cronologiaHeaderBox.remove();
+                }
+                salvaInAutomatico();
+            }, 500);
+        };
+        inputGroup.appendChild(trashBtn);
+    }
     function applicaStileStato(isComplete) {
         if(isComplete){
             complete.dataset.complete = 'true';
@@ -198,7 +255,7 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
     salvaInAutomatico();
 }
 document.getElementById('addInput').addEventListener('click', () => addInput());
-// 2. FUNZIONE CARICAMENTO DATI DA MONGODB
+// 3. FUNZIONE CARICAMENTO DATI DA MONGODB
 function caricaDatiDaMongoDB() {
     isLoading = true;
     fetch('/prendi-dati', {
@@ -223,7 +280,7 @@ function caricaDatiDaMongoDB() {
     });
 }
 window.addEventListener('DOMContentLoaded', caricaDatiDaMongoDB);
-// 3. GESTIONE DI ONESIGNAL
+// 4. GESTIONE DI ONESIGNAL
 window.OneSignalDeferred = window.OneSignalDeferred || [];
 window.OneSignalDeferred.push(function(OneSignal) {
     const bottone = document.getElementById('btnNotifiche');
