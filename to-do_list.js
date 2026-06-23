@@ -81,7 +81,7 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
             cronologiaHeaderBox.style.marginBottom = "15px";
             cronologiaTitolo = document.createElement('h3');
             cronologiaTitolo.id = 'titoloCronologia';
-            cronologiaTitolo.textContent = 'CRONOLOGIA';
+            cronologiaTitolo.textContent = 'CRONOLOGIA:';
             cronologiaTitolo.style.margin = "0 0 10px 0";
             cronologiaTitolo.style.textAlign = "center";
             const btnSvuota = document.createElement('button');
@@ -127,12 +127,14 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
         }
         return cronologia;
     }
-    function aggiungiCestinoSingolo() {
+       function aggiungiCestinoSingolo() {
         if (inputGroup.querySelector('.delete-single-history')) return;
         const trashBtn = document.createElement('button');
         trashBtn.textContent = '🗑️';
-        trashBtn.style.marginLeft = "10px";
-        trashBtn.style.marginTop = "5px";
+        if (window.innerWidth > 768) {
+            trashBtn.style.marginLeft = "10px";
+            trashBtn.style.marginTop = "5px";
+        }
         trashBtn.classList.add('delete-single-history');
         trashBtn.style.backgroundColor = '#dc3545';
         trashBtn.style.padding = '8px 12px';
