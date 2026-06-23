@@ -87,34 +87,36 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
         return cronologia;
     }
     function aggiungiCestinoSingolo() {
-        const trashBtn = document.createElement('button');
-        trashBtn.textContent = '🗑️';
-        trashBtn.style.marginTop = "5px";
-        trashBtn.classList.add('delete-single-history');
-        trashBtn.style.backgroundColor = '#dc3545';
-        trashBtn.style.padding = '8px 12px';
-        if (window.innerWidth > 500) {
-            trashBtn.style.marginLeft = "10px";
-        }
-        trashBtn.onclick = function() {
-            newInput.style.backgroundColor = '#dc3545';
-            newInput.style.borderColor = '#dc3545';
-            dateInput.style.setProperty('background-color', '#dc3545', 'important');
-            dateInput.style.setProperty('border-color', '#dc3545', 'important'); 
-            inputGroup.classList.add('fade-out-delete');
-            setTimeout(() => {
-                inputGroup.remove();
-                const cronologia = document.getElementById('cronologiaContainer');
-                const cronologiaTitolo = document.getElementById('titoloCronologia');
-                if (cronologia && cronologia.children.length === 0) {
-                    cronologia.remove();
-                    if (cronologiaTitolo) cronologiaTitolo.remove();
-                }
-                salvaInAutomatico();
-            }, 500);
-        };
-        inputGroup.appendChild(trashBtn);
-    }
+    const trashBtn = document.createElement('button');
+    trashBtn.textContent = '🗑️';
+    trashBtn.style.marginLeft = "10px";
+    trashBtn.style.marginTop = "5px";
+    trashBtn.classList.add('delete-single-history');
+    trashBtn.style.backgroundColor = '#dc3545';
+    trashBtn.style.padding = '8px 12px';
+    newInput.style.opacity = "1";
+    dateInput.style.opacity = "1";
+    newInput.style.color = "#ffffff";
+    dateInput.style.setProperty('color', '#ffffff', 'important');
+    trashBtn.onclick = function() {
+        newInput.style.backgroundColor = '#dc3545';
+        newInput.style.borderColor = '#dc3545';
+        dateInput.style.setProperty('background-color', '#dc3545', 'important');
+        dateInput.style.setProperty('border-color', '#dc3545', 'important'); 
+        inputGroup.classList.add('fade-out-delete');
+        setTimeout(() => {
+            inputGroup.remove();
+            const cronologia = document.getElementById('cronologiaContainer');
+            const cronologiaTitolo = document.getElementById('titoloCronologia');
+            if (cronologia && cronologia.children.length === 0) {
+                cronologia.remove();
+                if (cronologiaTitolo) cronologiaTitolo.remove();
+            }
+            salvaInAutomatico();
+        }, 500);
+    };
+    inputGroup.appendChild(trashBtn);
+}
     function applicaStileStato(isComplete) {
         if(isComplete){
             complete.dataset.complete = 'true';
@@ -195,7 +197,7 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
     salvaInAutomatico();
 }
 document.getElementById('addInput').addEventListener('click', () => addInput());
-// 3. FUNZIONE CARICAMENTO DATI DA MONGODB
+// 2. FUNZIONE CARICAMENTO DATI DA MONGODB
 function caricaDatiDaMongoDB() {
     isLoading = true;
     fetch('/prendi-dati', {
@@ -220,7 +222,7 @@ function caricaDatiDaMongoDB() {
     });
 }
 window.addEventListener('DOMContentLoaded', caricaDatiDaMongoDB);
-// 4. GESTIONE DI ONESIGNAL
+// 3. GESTIONE DI ONESIGNAL
 window.OneSignalDeferred = window.OneSignalDeferred || [];
 window.OneSignalDeferred.push(function(OneSignal) {
     const bottone = document.getElementById('btnNotifiche');
