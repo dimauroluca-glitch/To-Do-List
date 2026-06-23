@@ -152,3 +152,24 @@ function caricaDatiDaMongoDB() {
     });
 }
 window.addEventListener('DOMContentLoaded', caricaDatiDaMongoDB);
+window.OneSignalDeferred = window.OneSignalDeferred || [];
+window.OneSignalDeferred.push(function(OneSignal) {
+    const bottone = document.getElementById('btnNotifiche');
+    if (bottone) {
+        if (OneSignal.Notifications.permission) {
+            bottone.style.display = 'none';
+        }
+        bottone.onclick = async () => {
+            console.log("Richiesta permessi notifiche in corso...");
+            try {
+                await OneSignal.Notifications.requestPermission();
+                if (OneSignal.Notifications.permission) {
+                    bottone.style.display = 'none';
+                    alert("🟢 Notifiche attivate con successo! Riceverai i promemoria a pagina chiusa.");
+                }
+            } catch (errore) {
+                console.error("Errore durante la richiesta dei permessi:", errore);
+            }
+        };
+    }
+});
