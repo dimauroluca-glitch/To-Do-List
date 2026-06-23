@@ -8,7 +8,7 @@ function ottieniUserId() {
     return userId;
 }
 const MY_USER_ID = ottieniUserId();
-// 1. SALVATAGGIO AUTOMATICO (Incluso campo Data)
+// 1. SALVATAGGIO AUTOMATICO
 function salvaInAutomatico() {
     if (isLoading) return;
     const attivi = [];
@@ -83,7 +83,7 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
             cronologiaTitolo.id = 'titoloCronologia';
             cronologiaTitolo.textContent = 'CRONOLOGIA:';
             cronologiaTitolo.style.margin = "0 0 10px 0";
-            cronologiaTitolo.style.textAlign = "center";
+            cronologiaTitolo.style.textAlign = "center";   
             const btnSvuota = document.createElement('button');
             btnSvuota.id = 'btnSvuotaCronologia';
             btnSvuota.textContent = 'ELIMINA CRONOLOGIA';
@@ -127,17 +127,13 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
         }
         return cronologia;
     }
-       function aggiungiCestinoSingolo() {
+    function aggiungiCestinoSingolo() {
         if (inputGroup.querySelector('.delete-single-history')) return;
         const trashBtn = document.createElement('button');
         trashBtn.textContent = '🗑️';
-        if (window.innerWidth > 768) {
-            trashBtn.style.marginLeft = "10px";
-            trashBtn.style.marginTop = "5px";
-        }
         trashBtn.classList.add('delete-single-history');
         trashBtn.style.backgroundColor = '#dc3545';
-        trashBtn.style.padding = '8px 12px';
+        
         trashBtn.onclick = function() {
             newInput.style.backgroundColor = '#dc3545';
             newInput.style.borderColor = '#dc3545';
@@ -238,6 +234,7 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
         }
         salvaInAutomatico();
     }
+    // 3. RECUPERO DATI DALLO STORICO
     function caricaDati() {
         isLoading = true;
         const attivi = JSON.parse(localStorage.getItem('todo_attivi')) || [];
@@ -257,7 +254,7 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
         });
         isLoading = false;
     }
-    // 4. AVVIO AUTOMATICO AL CARICAMENTO DELLA PAGINA
+    // 4. AVVIO AUTOMATICO
     document.addEventListener("DOMContentLoaded", () => {
         caricaDati();
         document.getElementById('addInput').addEventListener('click', () => addInput());
