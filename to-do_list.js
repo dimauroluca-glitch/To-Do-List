@@ -11,56 +11,35 @@ const MY_USER_ID = ottieniUserId();
 // 1. SALVATAGGIO AUTOMATICO (Incluso campo Data)
 function salvaInAutomatico() {
     if (isLoading) return;
-    const gruppi = document.querySelectorAll('.input-group');
-    const listaOggetti = [];
-    gruppi.forEach(gruppo => {
-        const input = gruppo.querySelector('.input'); 
-        const bottoneCheck = gruppo.querySelector('.check');
-        const dateInput = gruppo.querySelector('.date-input');
-        if (input) {
-            const testoTask = input.value.trim();
-            const isCompletato = bottoneCheck.dataset.complete === 'true';
-            const dataScadenza = dateInput ? dateInput.value : "";
-            listaOggetti.push({
-                testo: testoTask,
-                completato: isCompletato,
-                data: dataScadenza
+    const attivi = [];
+    const completati = [];
+    document.querySelectorAll('#inputContainer .input-group').forEach(group => {
+        const inputTesto = group.querySelector('.input');
+        const inputData = group.querySelector('.date-input');
+        if (inputTesto && !group.classList.contains('fade-out-delete') && !group.classList.contains('fade-out-complete')) {
+            attivi.push({
+                testo: inputTesto.value,
+                data: inputData ? inputData.value : '',
+                completato: false
             });
-            if (testoTask !== "" && !isCompletato && dataScadenza) {
-                programmaNotificaSuBackend(testoTask, dataScadenza);
-            }
         }
     });
-    fetch('/invia-dati', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ userId: MY_USER_ID, elementi: listaOggetti })
-    })
-    .then(response => {
-        if (response.ok) {
-            console.log("🟢 Database MongoDB sincronizzato.");
-        }
-    })
-    .catch(error => console.error("Errore salvataggio automatico:", error));
-}
-function programmaNotificaSuBackend(testoTask, dataScadenza) {
-    fetch('/programma-notifica', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            userId: MY_USER_ID,
-            testo: testoTask,
-            data: dataScadenza
-        })
-    })
-    .then(res => {
-        if (res.ok) console.log("📅 Richiesta notifica inviata al server backend.");
-    })
-    .catch(err => console.error("Errore comunicazione notifica:", err));
+    const cronologiaContenitore = document.getElementById('cronologiaContainer');
+    if (cronologiaContenitore) {
+        cronologiaContenitore.querySelectorAll('.input-group').forEach(group => {
+            const inputTesto = group.querySelector('.input');
+            const inputData = group.querySelector('.date-input');
+            if (inputTesto && !group.classList.contains('fade-out-delete')) {
+                completati.push({
+                    testo: inputTesto.value,
+                    data: inputData ? inputData.value : '',
+                    completato: true
+                });
+            }
+        });
+    }
+    localStorage.setItem('todo_attivi', JSON.stringify(attivi));
+    localStorage.setItem('todo_completati', JSON.stringify(completati));
 }
 // 2. FUNZIONE GENERAZIONE INPUT
 function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = ''){
@@ -194,7 +173,7 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
                     if (newInput.value.trim() === '') {
                         inputGroup.remove();
                         salvaInAutomatico();
-                        return; 
+                        return;
                     }
                     const cronologia = creaStrutturaCronologia();
                     complete.remove();
@@ -240,76 +219,44 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
         setTimeout(() => {
             inputGroup.remove();
             salvaInAutomatico();
-        }, 500);
-    };
-    inputGroup.appendChild(dateInput);
-    inputGroup.appendChild(newInput);
-    inputGroup.appendChild(complete);
-    inputGroup.appendChild(deleteBtn);
-    if (spuntatoIniziale && testoIniziale.trim() !== '') {
-        complete.remove();
-        deleteBtn.remove();
-        aggiungiCestinoSingolo();
-        const cronologia = creaStrutturaCronologia();
-        cronologia.appendChild(inputGroup);
-    } else {
-        document.getElementById('inputContainer').appendChild(inputGroup);
-    }
-    salvaInAutomatico();
-}
-document.getElementById('addInput').addEventListener('click', () => addInput());
-// 3. FUNZIONE CARICAMENTO DATI DA MONGODB
-function caricaDatiDaMongoDB() {
-    isLoading = true;
-    fetch('/prendi-dati', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ userId: MY_USER_ID })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data && data.elementi && data.elementi.length > 0) {
-            document.getElementById('inputContainer').innerHTML = '';
-            data.elementi.forEach(elemento => {
-                addInput(elemento.testo, elemento.completato, elemento.data); 
-            });
-        }
-    })
-    .catch(error => console.error("Errore nel caricamento iniziale:", error))
-    .finally(() => {
-        isLoading = false;
-    });
-}
-window.addEventListener('DOMContentLoaded', caricaDatiDaMongoDB);
-// 4. GESTIONE DI ONESIGNAL
-window.OneSignalDeferred = window.OneSignalDeferred || [];
-window.OneSignalDeferred.push(function(OneSignal) {
-    const bottone = document.getElementById('btnNotifiche');
-    if (bottone) {
-        function gestisciVisibilitaBottone() {
-            if (Notification.permission === 'granted' || OneSignal.Notifications.permission === true) {
-                bottone.style.display = 'none';
-                console.log("🔒 Notifiche attive. Bottone nascosto con successo.");
-            } else {
-                bottone.style.display = 'block';
-            }
-        }
-        gestisciVisibilitaBottone();
-        bottone.onclick = async () => {
-            bottone.style.display = 'none';
-            console.log("Richiesta permessi notifiche in corso...");
-            try {
-                await OneSignal.Notifications.requestPermission();
-                if (Notification.permission === 'granted') {
-                    alert("🟢 Notifiche attivate con successo! Riceverai i promemoria.");
-                }
-                gestisciVisibilitaBottone();
-            } catch (err) {
-                console.error("Errore attivazione notifiche:", err);
-                bottone.style.display = 'block';
-            }
+            }, 500);
         };
+        inputGroup.appendChild(dateInput);
+        inputGroup.appendChild(newInput);
+        inputGroup.appendChild(complete);
+        inputGroup.appendChild(deleteBtn);
+        if (spuntatoIniziale && testoIniziale.trim() !== '') {
+            complete.remove();
+            deleteBtn.remove();
+            aggiungiCestinoSingolo();
+            const cronologia = creaStrutturaCronologia();
+            cronologia.appendChild(inputGroup);
+        } else {
+            document.getElementById('inputContainer').appendChild(inputGroup);
+        }
+        salvaInAutomatico();
     }
-});
+    function caricaDati() {
+        isLoading = true;
+        const attivi = JSON.parse(localStorage.getItem('todo_attivi')) || [];
+        const completati = JSON.parse(localStorage.getItem('todo_completati')) || [];
+        document.getElementById('inputContainer').innerHTML = '';
+        const cronologiaContenitore = document.getElementById('cronologiaContainer');
+        if (cronologiaContenitore) cronologiaContenitore.innerHTML = '';
+        attivi.forEach(item => {
+            if (item.testo.trim() !== '') {
+                addInput(item.testo, false, item.data);
+            }
+        });
+        completati.forEach(item => {
+            if (item.testo.trim() !== '') {
+                addInput(item.testo, true, item.data);
+            }
+        });
+        isLoading = false;
+    }
+    // 4. AVVIO AUTOMATICO AL CARICAMENTO DELLA PAGINA
+    document.addEventListener("DOMContentLoaded", () => {
+        caricaDati();
+        document.getElementById('addInput').addEventListener('click', () => addInput());
+    });
