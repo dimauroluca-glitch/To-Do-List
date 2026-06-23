@@ -170,63 +170,92 @@
         .cronologia{
             margin-bottom: 2px;
         }
-        @media (max-width: 768px){
-            button{
-                width: 100%;
-                padding: 15px 24px;
-                font-size: 18px;
-                margin-bottom: 20px;
-                box-sizing: border-box;
-            }
-            .input-group {
-                display: flex;
-                flex-direction: column;
-                align-items: stretch;
-                margin: 15px 0;
-                width: 100%;
-            }
-            .input {
-                width: 100%;
-                padding: 15px;
-                font-size: 16px;
-                margin-right: 0;
-                margin-bottom: 10px;
-                box-sizing: border-box;
-            }
-            .check, .delete {
-                width: 100%;
-                padding: 15px 20px;
-                font-size: 18px;
-                margin-left: 0;
-                margin-top: 5px;
-                box-sizing: border-box;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-            body {
-                min-height: 100vh;
-                font-size: 16px;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                padding: 15px;
-            }
-            .container{
-                margin: auto 0;
-                width: 100%;
-                max-width: 100%;
-                box-sizing: border-box;
-            }
-            .date-input {
-                width: 100%;
-                padding: 15px;
-                font-size: 16px;
-                margin-bottom: 10px;
-                box-sizing: border-box;
-                text-align: center;
-            }
-        }
+       @media (max-width: 768px){
+    button{
+        width: 100%;
+        padding: 15px 24px;
+        font-size: 18px;
+        margin-bottom: 20px;
+        box-sizing: border-box;
+    }
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        margin: 15px 0;
+        width: 100%;
+    }
+    .input {
+        width: 100%;
+        padding: 15px;
+        font-size: 16px;
+        margin-right: 0;
+        margin-bottom: 10px;
+        box-sizing: border-box;
+    }
+    .check, .delete {
+        width: 100%;
+        padding: 15px 20px;
+        font-size: 18px;
+        margin-left: 0;
+        margin-top: 5px;
+        box-sizing: border-box;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    body {
+        min-height: 100vh;
+        font-size: 16px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 15px;
+    }
+    .container{
+        margin: auto 0;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    .date-input {
+        width: 100%;
+        padding: 15px;
+        font-size: 16px;
+        margin-bottom: 10px;
+        box-sizing: border-box;
+        text-align: center;
+    }
+    #titoloCronologia {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        width: 100%;
+        box-sizing: border-box;
+        margin-top: 30px !important;
+        margin-bottom: 15px !important;
+        text-align: center;
+    }
+    #titoloCronologia button {
+        width: 100%;
+        margin-left: 0 !important;
+        padding: 15px 24px;
+        font-size: 16px;
+        margin-bottom: 0;
+    }
+    .delete-single-history {
+        width: 100%;
+        padding: 15px 20px !important;
+        font-size: 18px;
+        margin-left: 0 !important;
+        margin-top: 5px !important;
+        box-sizing: border-box;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+}
     </style>
 </head>
 <body>
