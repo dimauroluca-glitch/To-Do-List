@@ -127,7 +127,7 @@
             background-color: #218838;
             transform: translateY(-2px);
         }
-       .date-input {
+        .date-input {
             padding: 10px 14px;
             font-size: 16px;
             border: 1px solid #fffefe;
@@ -139,23 +139,12 @@
             font-family: inherit;
             margin-right: 10px;
         }
-
         .date-input:focus {
             border-color: #80bdff;
             box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
         }
-        .date-input.force-green:disabled {
-            background-color: #1e7e34;
-            border-color: #1e7e34;
-            color: rgba(255, 255, 255, 0.7);
-            -webkit-text-fill-color: rgba(255, 255, 255, 0.7);
-            cursor: not-allowed;
-        }
-        .date-input.force-red:disabled {
-            background-color: #dc3545;
-            border-color: #dc3545;
-            color: #ffffff;
-            -webkit-text-fill-color: #ffffff;
+        .date-input:disabled {
+            -webkit-text-fill-color: #ffffff !important;
             cursor: not-allowed;
         }
         .date-input::-webkit-calendar-picker-indicator {
