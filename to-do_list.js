@@ -9,60 +9,6 @@ function ottieniUserId() {
 }
 const MY_USER_ID = ottieniUserId();
 // 1. SALVATAGGIO AUTOMATICO (Incluso campo Data)
-function salvaInAutomatico() {
-    if (isLoading) return;
-    const gruppi = document.querySelectorAll('.input-group');
-    const listaOggetti = [];
-    gruppi.forEach(gruppo => {
-        const input = gruppo.querySelector('.input'); 
-        const bottoneCheck = gruppo.querySelector('.check');
-        const dateInput = gruppo.querySelector('.date-input');
-        if (input) {
-            const testoTask = input.value.trim();
-            const isCompletato = bottoneCheck.dataset.complete === 'true';
-            const dataScadenza = dateInput ? dateInput.value : "";
-            listaOggetti.push({
-                testo: testoTask,
-                completato: isCompletato,
-                data: dataScadenza
-            });
-            if (testoTask !== "" && !isCompletato && dataScadenza) {
-                programmaNotificaSuBackend(testoTask, dataScadenza);
-            }
-        }
-    });
-    fetch('/invia-dati', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ userId: MY_USER_ID, elementi: listaOggetti })
-    })
-    .then(response => {
-        if (response.ok) {
-            console.log("🟢 Database MongoDB sincronizzato.");
-        }
-    })
-    .catch(error => console.error("Errore salvataggio automatico:", error));
-}
-function programmaNotificaSuBackend(testoTask, dataScadenza) {
-    fetch('/programma-notifica', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            userId: MY_USER_ID,
-            testo: testoTask,
-            data: dataScadenza
-        })
-    })
-    .then(res => {
-        if (res.ok) console.log("📅 Richiesta notifica inviata al server backend.");
-    })
-    .catch(err => console.error("Errore comunicazione notifica:", err));
-}
-// 2. FUNZIONE GENERAZIONE INPUT
 function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = ''){
     const inputGroup = document.createElement('div');
     inputGroup.classList.add('input-group');
@@ -143,11 +89,13 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
     function aggiungiCestinoSingolo() {
         const trashBtn = document.createElement('button');
         trashBtn.textContent = '🗑️';
-        trashBtn.style.marginLeft = "10px";
         trashBtn.style.marginTop = "5px";
         trashBtn.classList.add('delete-single-history');
         trashBtn.style.backgroundColor = '#dc3545';
         trashBtn.style.padding = '8px 12px';
+        if (window.innerWidth > 500) {
+            trashBtn.style.marginLeft = "10px";
+        }
         trashBtn.onclick = function() {
             newInput.style.backgroundColor = '#dc3545';
             newInput.style.borderColor = '#dc3545';
