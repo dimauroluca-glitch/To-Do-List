@@ -1,22 +1,24 @@
 <!DOCTYPE html>
 <html lang="it">
-    <head><title>To-Do List</title>
+<head>
+    <title>To-Do List</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "3ce393c8-7d93-4c37-a87f-a268b6343602",
-    });
-    const userId = localStorage.getItem('todo_user_id');
-    if (userId) {
-      await OneSignal.login(userId);
-      console.log("🟢 Dispositivo sincronizzato con l'ID OneSignal:", userId);
-    }
-  });
-</script>
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+          appId: "3ce393c8-7d93-4c37-a87f-a268b6343602",
+          allowLocalhostAsSecureOrigin: true
+        });
+        const userId = localStorage.getItem('todo_user_id');
+        if (userId) {
+          await OneSignal.login(userId);
+          console.log("🟢 Dispositivo sincronizzato con l'ID OneSignal:", userId);
+        }
+      });
+    </script>
     <style>
         body{
             display: flex;
@@ -179,7 +181,7 @@
                 font-size: 18px;
                 margin-left: 0;
                 margin-top: 5px;
-                 box-sizing: border-box;
+                box-sizing: border-box;
                 display: flex;
                 justify-content: center;
                 align-items: center;
@@ -206,18 +208,19 @@
                 box-sizing: border-box;
                 text-align: center;
             }
-}
-        </style>
-    </head>
-        <body>
-            <div class="container">
-                <div class="center">
-                    <h1>TO-DO LIST</h1>
-                    <button id="addInput">+ Aggiungi</button>
-                </div>
-                <div id="inputContainer"></div>
-                <div id="areaData"></div>
-            </div>
-        </body>
-        <script src="to-do_list.js"></script>
-    </html>
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="center">
+            <h1>TO-DO LIST</h1>
+            <button id="btnNotifiche" style="background-color: #007bff; margin-bottom: 10px;">🔔 Attiva Notifiche</button>
+            <button id="addInput">+ Aggiungi</button>
+        </div>
+        <div id="inputContainer"></div>
+        <div id="areaData"></div>
+    </div>
+    <script src="to-do_list.js"></script>
+</body>
+</html>
