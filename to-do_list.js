@@ -160,16 +160,20 @@ window.OneSignalDeferred.push(function(OneSignal) {
             bottone.style.display = 'none';
         }
         bottone.onclick = async () => {
-            console.log("Richiesta permessi notifiche in corso...");
-            try {
-                await OneSignal.Notifications.requestPermission();
-                if (OneSignal.Notifications.permission) {
-                    bottone.style.display = 'none';
-                    alert("🟢 Notifiche attivate con successo! Riceverai i promemoria a pagina chiusa.");
-                }
-            } catch (errore) {
-                console.error("Errore durante la richiesta dei permessi:", errore);
-            }
+    bottone.style.display = 'none'; 
+    console.log("Richiesta permessi notifiche in corso...");
+    try {
+        await OneSignal.Notifications.requestPermission();
+        if (!OneSignal.Notifications.permission) {
+            bottone.style.display = 'block';
+        } else {
+            alert("🟢 Notifiche attivate con successo! Riceverai i promemoria a pagina chiusa.");
+        }
+    } catch (errore) {
+        bottone.style.display = 'block';
+        console.error("Errore durante la richiesta dei permessi:", errore);
+    }
+};
         };
     }
-});
+);
