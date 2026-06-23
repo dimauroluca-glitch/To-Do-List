@@ -35,19 +35,18 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
     complete.textContent = '✓';
     complete.classList.add('check');  
     function creaStrutturaCronologia() {
-        let cronologiaTitolo = document.getElementById('titoloCronologia');
-        if (!cronologiaTitolo) {
-            cronologiaTitolo = document.createElement('h3');
+        let cronologiaTitoloBox = document.getElementById('cronologiaHeaderBox');
+        if (!cronologiaTitoloBox) {
+            cronologiaTitoloBox = document.createElement('div');
+            cronologiaTitoloBox.id = 'cronologiaHeaderBox';
+            const cronologiaTitolo = document.createElement('h3');
             cronologiaTitolo.id = 'titoloCronologia';
-            cronologiaTitolo.textContent = 'CRONOLOGIA: ';
-            cronologiaTitolo.style.marginBottom = "5px"; 
-            cronologiaTitolo.style.marginTop = "20px";
+            cronologiaTitolo.textContent = 'CRONOLOGIA:';
+            cronologiaTitolo.style.marginBottom = "5px";
             const btnSvuota = document.createElement('button');
+            btnSvuota.id = 'btnSvuotaCronologia';
             btnSvuota.textContent = 'ELIMINA CRONOLOGIA';
             btnSvuota.style.backgroundColor = '#dc3545';
-            btnSvuota.style.fontSize = '12px';
-            btnSvuota.style.marginLeft = '15px';
-            btnSvuota.style.padding = '4px 8px';
             btnSvuota.onclick = function() {
                 const cronologia = document.getElementById('cronologiaContainer');
                 if (cronologia) {
@@ -65,24 +64,26 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
                         }
                         elemento.classList.add('fade-out-delete');
                     });
+
                     setTimeout(() => {
                         cronologia.remove();
-                        cronologiaTitolo.remove();
+                        cronologiaTitoloBox.remove();
                         salvaInAutomatico();
                     }, 500);
                 } else {
-                    cronologiaTitolo.remove();
+                    cronologiaTitoloBox.remove();
                     salvaInAutomatico();
                 }
             };
-            cronologiaTitolo.appendChild(btnSvuota);
-            document.getElementById('inputContainer').after(cronologiaTitolo);
+            cronologiaTitoloBox.appendChild(cronologiaTitolo);
+            cronologiaTitoloBox.appendChild(btnSvuota);
+            document.getElementById('inputContainer').after(cronologiaTitoloBox);
         }
         let cronologia = document.getElementById('cronologiaContainer');
         if (!cronologia) {
             cronologia = document.createElement('div');
             cronologia.id = 'cronologiaContainer';
-            cronologiaTitolo.after(cronologia);
+            cronologiaTitoloBox.after(cronologia);
         }
         return cronologia;
     }
