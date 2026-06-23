@@ -102,7 +102,7 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
             cronologiaHeaderBox.style.marginBottom = "15px";
             cronologiaTitolo = document.createElement('h3');
             cronologiaTitolo.id = 'titoloCronologia';
-            cronologiaTitolo.textContent = 'CRONOLOGIA:';
+            cronologiaTitolo.textContent = 'CRONOLOGIA';
             cronologiaTitolo.style.margin = "0 0 10px 0";
             cronologiaTitolo.style.textAlign = "center";
             const btnSvuota = document.createElement('button');
@@ -149,6 +149,7 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
         return cronologia;
     }
     function aggiungiCestinoSingolo() {
+        if (inputGroup.querySelector('.delete-single-history')) return;
         const trashBtn = document.createElement('button');
         trashBtn.textContent = '🗑️';
         trashBtn.style.marginLeft = "10px";
@@ -175,7 +176,7 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
         };
         inputGroup.appendChild(trashBtn);
     }
-    function applicaStileStato(isComplete) {
+    function applicaStileStato(isComplete, eseguiTransizione = true) {
         if(isComplete){
             complete.dataset.complete = 'true';
             complete.style.backgroundColor = '#1e7e34';
@@ -187,21 +188,23 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
             dateInput.style.setProperty('color', '#ffffff', 'important');
             newInput.disabled = true;
             dateInput.disabled = true;
-            inputGroup.classList.add('fade-out-complete');
-            setTimeout(() => {
-                if (newInput.value.trim() === '') {
-                    inputGroup.remove();
+            if (eseguiTransizione) {
+                inputGroup.classList.add('fade-out-complete');
+                setTimeout(() => {
+                    if (newInput.value.trim() === '') {
+                        inputGroup.remove();
+                        salvaInAutomatico();
+                        return; 
+                    }
+                    const cronologia = creaStrutturaCronologia();
+                    complete.remove();
+                    deleteBtn.remove();
+                    aggiungiCestinoSingolo();
+                    inputGroup.classList.remove('fade-out-complete'); 
+                    cronologia.appendChild(inputGroup); 
                     salvaInAutomatico();
-                    return; 
-                }
-                const cronologia = creaStrutturaCronologia();
-                complete.remove();
-                deleteBtn.remove();
-                aggiungiCestinoSingolo();
-                inputGroup.classList.remove('fade-out-complete'); 
-                cronologia.appendChild(inputGroup); 
-                salvaInAutomatico();
-            }, 500);
+                }, 500);
+            }
         } else {
             complete.dataset.complete = 'false';
             complete.style.backgroundColor = '#28a745';
@@ -215,10 +218,10 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
             dateInput.disabled = false;
         }
     }
-    applicaStileStato(spuntatoIniziale);
+    applicaStileStato(spuntatoIniziale, false);
     complete.onclick = function(){
         const nuovoStato = complete.dataset.complete !== 'true';
-        applicaStileStato(nuovoStato);
+        applicaStileStato(nuovoStato, true);
         salvaInAutomatico();
     };
     const deleteBtn = document.createElement('button');
