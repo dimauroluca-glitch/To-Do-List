@@ -131,6 +131,8 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
         if (inputGroup.querySelector('.delete-single-history')) return;
         const trashBtn = document.createElement('button');
         trashBtn.textContent = '🗑️';
+        trashBtn.style.marginLeft = "10px";
+        trashBtn.style.marginTop = "5px";
         trashBtn.classList.add('delete-single-history');
         trashBtn.style.backgroundColor = '#dc3545';
         
