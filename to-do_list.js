@@ -95,6 +95,10 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
             complete.style.backgroundColor = '#1e7e34';
             newInput.style.backgroundColor = '#28a745';
             newInput.style.borderColor = '#28a745';
+            newInput.style.color = '#ffffff';
+            dateInput.style.setProperty('background-color', '#1e7e34', 'important');
+            dateInput.style.setProperty('border-color', '#1e7e34', 'important');
+            dateInput.style.setProperty('color', '#ffffff', 'important');
             newInput.disabled = true;
             dateInput.disabled = true;
             inputGroup.classList.add('fade-out-complete');
@@ -106,6 +110,10 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
             complete.style.backgroundColor = '#28a745';
             newInput.style.backgroundColor = '#ffffff';
             newInput.style.borderColor = '#ffffff';
+            newInput.style.color = '#000000';
+            dateInput.style.removeProperty('background-color');
+            dateInput.style.removeProperty('border-color');
+            dateInput.style.removeProperty('color');
             newInput.disabled = false;
             dateInput.disabled = false;
         }
@@ -123,10 +131,9 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
         newInput.style.backgroundColor = '#dc3545';
         newInput.style.borderColor = '#dc3545';
         newInput.style.color = '#ffffff';
-        dateInput.style.backgroundColor = '#dc3545';
-        dateInput.style.borderColor = '#dc3545';
-        dateInput.style.color = '#ffffff';
-        dateInput.classList.add('force-red');
+        dateInput.style.setProperty('background-color', '#dc3545', 'important');
+        dateInput.style.setProperty('border-color', '#dc3545', 'important');
+        dateInput.style.setProperty('color', '#ffffff', 'important');
         newInput.disabled = true;
         dateInput.disabled = true;
         inputGroup.classList.add('fade-out-delete');
