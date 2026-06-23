@@ -156,24 +156,30 @@ window.OneSignalDeferred = window.OneSignalDeferred || [];
 window.OneSignalDeferred.push(function(OneSignal) {
     const bottone = document.getElementById('btnNotifiche');
     if (bottone) {
-        if (OneSignal.Notifications.permission) {
-            bottone.style.display = 'none';
+        function gestisciVisibilitaBottone() {
+            if (Notification.permission === 'granted' || OneSignal.Notifications.permission === true) {
+                bottone.style.display = 'none';
+                console.log("🔒 Notifiche attive. Bottone nascosto con successo.");
+            } else {
+                bottone.style.display = 'block';
+            }
         }
+        gestisciVisibilitaBottone();
         bottone.onclick = async () => {
-    bottone.style.display = 'none'; 
-    console.log("Richiesta permessi notifiche in corso...");
-    try {
-        await OneSignal.Notifications.requestPermission();
-        if (!OneSignal.Notifications.permission) {
-            bottone.style.display = 'block';
-        } else {
-            alert("🟢 Notifiche attivate con successo! Riceverai i promemoria a pagina chiusa.");
-        }
-    } catch (errore) {
-        bottone.style.display = 'block';
-        console.error("Errore durante la richiesta dei permessi:", errore);
-    }
-};
+            bottone.style.display = 'none';
+            console.log("Richiesta permessi notifiche in corso...");
+            try {
+                await OneSignal.Notifications.requestPermission();
+                if (Notification.permission === 'granted') {
+                    alert("🟢 Notifiche attivate con successo! Riceverai i promemoria a pagina chiusa.");
+                } else {
+                    bottone.style.display = 'block';
+                }
+            } catch (errore) {
+                bottone.style.display = 'block';
+                console.error("Errore durante la richiesta dei permessi:", errore);
+            }
         };
+        OneSignal.Notifications.addEventListener("permissionChange", gestisciVisibilitaBottone);
     }
-);
+});
