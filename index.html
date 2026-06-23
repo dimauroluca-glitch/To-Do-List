@@ -170,7 +170,26 @@
         .cronologia{
             margin-bottom: 2px;
         }
-      @media (max-width: 768px){
+        #cronologiaHeaderBox {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        #titoloCronologia {
+            margin: 0 0 10px 0 !important;
+            text-align: center;
+            font-size: 24px;
+        }
+        #btnSvuotaCronologia {
+            margin-left: 0 !important; 
+            font-size: 14px;
+            padding: 6px 12px;
+            cursor: pointer;
+        }
+@media (max-width: 768px){
     button{
         width: 100%;
         padding: 15px 24px;
@@ -226,23 +245,27 @@
         box-sizing: border-box;
         text-align: center;
     }
-    #titoloCronologia {
+    #cronologiaHeaderBox {
         display: flex;
         flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
+        align-items: center;
         width: 100%;
+        margin-top: 30px;
+        margin-bottom: 15px;
         box-sizing: border-box;
-        margin-top: 30px !important;
-        margin-bottom: 15px !important;
-        text-align: center;
     }
-    #titoloCronologia button {
+    #titoloCronologia {
+        margin: 0 0 10px 0 !important;
+        font-size: 22px;
+        text-align: center;
         width: 100%;
-        margin-left: 0 !important;
+    }
+    #btnSvuotaCronologia {
+        width: 100%;
         padding: 15px 24px;
         font-size: 16px;
-        margin-bottom: 0;
+        margin-bottom: 10px;
+        box-sizing: border-box;
     }
     .delete-single-history {
         width: 100%;
