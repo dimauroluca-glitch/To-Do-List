@@ -3,6 +3,20 @@
     <head><title>To-Do List</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "3ce393c8-7d93-4c37-a87f-a268b6343602",
+    });
+    const userId = localStorage.getItem('todo_user_id');
+    if (userId) {
+      await OneSignal.login(userId);
+      console.log("🟢 Dispositivo sincronizzato con l'ID OneSignal:", userId);
+    }
+  });
+</script>
     <style>
         body{
             display: flex;
@@ -194,6 +208,7 @@
             }
 }
         </style>
+    </head>
         <body>
             <div class="container">
                 <div class="center">
@@ -205,4 +220,4 @@
             </div>
         </body>
         <script src="to-do_list.js"></script>
-    </head>
+    </html>
