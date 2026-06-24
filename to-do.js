@@ -87,7 +87,18 @@ app.post('/programma-notifica', async (req, res) => {
                 send_after: dataFormattata
             })
         });
-        const risultato = await response.json();
+        const testoRisposta = await response.text();
+        console.log("Risposta grezza da OneSignal:", testoRisposta);
+        let risultato;
+        try {
+            risultato = JSON.parse(testoRisposta);
+        } catch (e) {
+            return res.status(400).json({ 
+                successo: false, 
+                messaggio: "OneSignal ha risposto con un formato non valido (HTML/Testo).", 
+                rispostaGrezza: testoRisposta 
+            });
+        }
         if (risultato.errors) {
             console.error("🔴 Errore restituito da OneSignal:", risultato.errors);
             return res.status(400).json({ successo: false, errori: risultato.errors });
