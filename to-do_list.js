@@ -63,7 +63,7 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
     };
     const newInput = document.createElement('input');
     newInput.type = 'text';
-    newInput.placeholder = 'Scrivi un task...';
+    newInput.placeholder = 'Write a task...';
     newInput.classList.add('input');
     newInput.style.textAlign = "center";
     newInput.value = testoIniziale;
@@ -87,12 +87,12 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
         cronologiaHeaderBox.style.marginBottom = "15px";
         cronologiaTitolo = document.createElement('h3');
         cronologiaTitolo.id = 'titoloCronologia';
-        cronologiaTitolo.textContent = 'CRONOLOGIA:';
+        cronologiaTitolo.textContent = 'HISTORY:';
         cronologiaTitolo.style.margin = "0 0 10px 0";
         cronologiaTitolo.style.textAlign = "center";   
         const btnSvuota = document.createElement('button');
         btnSvuota.id = 'btnSvuotaCronologia';
-        btnSvuota.textContent = 'ELIMINA CRONOLOGIA';
+        btnSvuota.textContent = 'Delete History';
         btnSvuota.style.backgroundColor = '#dc3545';
         btnSvuota.onclick = function() {
             const cronologia = document.getElementById('cronologiaContainer');
@@ -215,7 +215,7 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
         salvaInAutomatico();
     };
     const deleteBtn = document.createElement('button');
-    deleteBtn.textContent = 'Elimina';
+    deleteBtn.textContent = 'Delete';
     deleteBtn.classList.add('delete');
     deleteBtn.onclick = function(){
         newInput.style.backgroundColor = '#dc3545';
