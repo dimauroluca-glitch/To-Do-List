@@ -49,6 +49,8 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
     inputGroup.style.justifyContent = "center";
     inputGroup.style.alignItems = "center";
     inputGroup.style.width = "100%";
+    inputGroup.style.marginLeft = "0";
+    inputGroup.style.marginRight = "0";
     const dateInput = document.createElement('input');
     dateInput.type = 'date';
     dateInput.classList.add('date-input');
@@ -171,8 +173,8 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
         if(isComplete){
             complete.dataset.complete = 'true';
             complete.style.backgroundColor = '#1e7e34';
-            newInput.style.backgroundColor = '#28a745';
-            newInput.style.borderColor = '#28a745';
+            newInput.style.backgroundColor = '#1e7e34';
+            newInput.style.borderColor = '#1e7e34';
             newInput.style.color = '#ffffff';
             dateInput.style.setProperty('background-color', '#1e7e34', 'important');
             dateInput.style.setProperty('border-color', '#1e7e34', 'important');
