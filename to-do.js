@@ -65,10 +65,17 @@ app.post('/programma-notifica', async (req, res) => {
         if (!userId || !testo || !data) {
             return res.status(400).send("Dati mancanti (userId, testo o data).");
         }
+        if (!process.env.ONESIGNAL_API_KEY) {
+            console.error("🔴 ATTENZIONE: La variabile ONESIGNAL_API_KEY è vuota su Render!");
+        } else {
+            console.log(`🟢 Chiave API rilevata (Inizia con: ${process.env.ONESIGNAL_API_KEY.substring(0, 10)}...)`);
+        }
         const dataTest = new Date(data);
         const offsetMinuti = dataTest.getTimezoneOffset();
         const offsetOre = Math.abs(offsetMinuti / 60);
-        const stringaOffset = offsetMinuti <= 0 ? `+0${offsetOre}00` : `-0${offsetOre}00`;
+        const stringaOffset = offsetMinuti <= 0 
+            ? `+${String(offsetOre).padStart(2, '0')}00` 
+            : `-${String(offsetOre).padStart(2, '0')}00`;
         const dataFormattata = `${data} 09:00:00 GMT${stringaOffset}`;
         console.log(`[OneSignal] Programmazione per la data: ${dataFormattata}`);
         const response = await fetch('https://onesignal.com', {
@@ -95,7 +102,7 @@ app.post('/programma-notifica', async (req, res) => {
         } catch (e) {
             return res.status(400).json({ 
                 successo: false, 
-                messaggio: "OneSignal ha risposto con un formato non valido (HTML/Testo).", 
+                messaggio: "L'URL di OneSignal nel codice è ancora errato o non aggiornato.", 
                 rispostaGrezza: testoRisposta 
             });
         }
@@ -105,7 +112,7 @@ app.post('/programma-notifica', async (req, res) => {
         }
         console.log("📅 Notifica programmata su OneSignal via Backend:", risultato);
         res.status(200).json({ successo: true, risultato });
-        } catch (error) {
+    } catch (error) {
         console.error("Errore generico programmazione OneSignal:", error);
         res.status(500).json({ 
             successo: false, 
