@@ -58,17 +58,24 @@ app.post('/prendi-dati', async (req, res) => {
         res.status(500).send("Errore nel recupero dei dati.");
     }
 });
-// 6. NUOVA ROTTA SICURA PER ONESIGNAL (Chiamata dal frontend)
+// 6. ROTTA CORRETTA E SICURA PER ONESIGNAL
 app.post('/programma-notifica', async (req, res) => {
     try {
         const { userId, testo, data } = req.body;
-        if (!userId || !testo || !data) return res.status(400).send("Dati mancanti.");
-        const dataFormattata = `${data} 09:00:00 GMT+0200`;
+        if (!userId || !testo || !data) {
+            return res.status(400).send("Dati mancanti (userId, testo o data).");
+        }
+        const dataTest = new Date(data);
+        const offsetMinuti = dataTest.getTimezoneOffset();
+        const offsetOre = Math.abs(offsetMinuti / 60);
+        const stringaOffset = offsetMinuti <= 0 ? `+0${offsetOre}00` : `-0${offsetOre}00`;
+        const dataFormattata = `${data} 09:00:00 GMT${stringaOffset}`;
+        console.log(`[OneSignal] Programmazione per la data: ${dataFormattata}`);
         const response = await fetch('https://onesignal.com', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Basic os_v2_app_htrzhsd5sngdpkd7ujulmnbwaixvezaqpwqujh4rfnmgxm2hf7vrjysi3mzxjdjjjlmpu4hu2kzfvwwzntlof6wlxtodtzolfv4p2ry'
+                'Authorization': `Basic ${process.env.ONESIGNAL_API_KEY}`
             },
             body: JSON.stringify({
                 app_id: "3ce393c8-7d93-4c37-a87f-a268b6343602",
@@ -80,11 +87,15 @@ app.post('/programma-notifica', async (req, res) => {
             })
         });
         const risultato = await response.json();
+        if (risultato.errors) {
+            console.error("🔴 Errore restituito da OneSignal:", risultato.errors);
+            return res.status(400).json({ successo: false, errori: risultato.errors });
+        }
         console.log("📅 Notifica programmata su OneSignal via Backend:", risultato);
-        res.status(200).json(risultato);
+        res.status(200).json({ successo: true, risultato });
     } catch (error) {
-        console.error("Errore programmazione OneSignal su Backend:", error);
-        res.status(500).send("Errore server notifiche.");
+        console.error("Errore generico programmazione OneSignal:", error);
+        res.status(500).send("Errore interno del server notifiche.");
     }
 });
 app.listen(PORT, () => {
