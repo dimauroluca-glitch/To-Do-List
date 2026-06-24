@@ -78,7 +78,7 @@ app.post('/programma-notifica', async (req, res) => {
             : `-${String(offsetOre).padStart(2, '0')}00`;
         const dataFormattata = `${data} 09:00:00 GMT${stringaOffset}`;
         console.log(`[OneSignal] Programmazione per la data: ${dataFormattata}`);
-        const response = await fetch('https://onesignal.com', {
+       const response = await fetch('https://onesignal.com/api/v1/notifications', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json; charset=utf-8',
