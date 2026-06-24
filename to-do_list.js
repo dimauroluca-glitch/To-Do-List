@@ -45,9 +45,14 @@ function salvaInAutomatico() {
 function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = ''){
     const inputGroup = document.createElement('div');
     inputGroup.classList.add('input-group');
+    inputGroup.style.display = "flex";
+    inputGroup.style.justifyContent = "center";
+    inputGroup.style.alignItems = "center";
+    inputGroup.style.width = "100%";
     const dateInput = document.createElement('input');
     dateInput.type = 'date';
     dateInput.classList.add('date-input');
+    dateInput.style.textAlign = "center";
     if (dataIniziale === '') {
         dateInput.value = new Date().toISOString().split('T')[0];
     } else {
@@ -60,6 +65,7 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
     newInput.type = 'text';
     newInput.placeholder = 'Scrivi un task...';
     newInput.classList.add('input');
+    newInput.style.textAlign = "center";
     newInput.value = testoIniziale;
     newInput.oninput = function() {
         salvaInAutomatico();
@@ -68,74 +74,80 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
     complete.textContent = '✓';
     complete.classList.add('check');
     function creaStrutturaCronologia() {
-        let cronologiaHeaderBox = document.getElementById('cronologiaHeaderBox');
-        let cronologiaTitolo = document.getElementById('titoloCronologia');
-        if (!cronologiaHeaderBox) {
-            cronologiaHeaderBox = document.createElement('div');
-            cronologiaHeaderBox.id = 'cronologiaHeaderBox';
-            cronologiaHeaderBox.style.display = "flex";
-            cronologiaHeaderBox.style.flexDirection = "column";
-            cronologiaHeaderBox.style.alignItems = "center";
-            cronologiaHeaderBox.style.width = "100%";
-            cronologiaHeaderBox.style.marginTop = "30px";
-            cronologiaHeaderBox.style.marginBottom = "15px";
-            cronologiaTitolo = document.createElement('h3');
-            cronologiaTitolo.id = 'titoloCronologia';
-            cronologiaTitolo.textContent = 'CRONOLOGIA:';
-            cronologiaTitolo.style.margin = "0 0 10px 0";
-            cronologiaTitolo.style.textAlign = "center";   
-            const btnSvuota = document.createElement('button');
-            btnSvuota.id = 'btnSvuotaCronologia';
-            btnSvuota.textContent = 'ELIMINA CRONOLOGIA';
-            btnSvuota.style.backgroundColor = '#dc3545';
-            btnSvuota.onclick = function() {
-                const cronologia = document.getElementById('cronologiaContainer');
-                if (cronologia) {
-                    const elementi = cronologia.querySelectorAll('.input-group');
-                    elementi.forEach(elemento => {
-                        const inputTesto = elemento.querySelector('.input');
-                        const inputData = elemento.querySelector('.date-input');
-                        if (inputTesto) {
-                            inputTesto.style.backgroundColor = '#dc3545';
-                            inputTesto.style.borderColor = '#dc3545';
-                        }
-                        if (inputData) {
-                            inputData.style.setProperty('background-color', '#dc3545', 'important');
-                            inputData.style.setProperty('border-color', '#dc3545', 'important');
-                        }
-                        elemento.classList.add('fade-out-delete');
-                    });
-                    setTimeout(() => {
-                        cronologia.remove();
-                        cronologiaHeaderBox.remove();
-                        salvaInAutomatico();
-                    }, 500);
-                } else {
+    let cronologiaHeaderBox = document.getElementById('cronologiaHeaderBox');
+    let cronologiaTitolo = document.getElementById('titoloCronologia');
+    if (!cronologiaHeaderBox) {
+        cronologiaHeaderBox = document.createElement('div');
+        cronologiaHeaderBox.id = 'cronologiaHeaderBox';
+        cronologiaHeaderBox.style.display = "flex";
+        cronologiaHeaderBox.style.flexDirection = "column";
+        cronologiaHeaderBox.style.alignItems = "center";
+        cronologiaHeaderBox.style.width = "100%";
+        cronologiaHeaderBox.style.marginTop = "30px";
+        cronologiaHeaderBox.style.marginBottom = "15px";
+        cronologiaTitolo = document.createElement('h3');
+        cronologiaTitolo.id = 'titoloCronologia';
+        cronologiaTitolo.textContent = 'CRONOLOGIA:';
+        cronologiaTitolo.style.margin = "0 0 10px 0";
+        cronologiaTitolo.style.textAlign = "center";   
+        const btnSvuota = document.createElement('button');
+        btnSvuota.id = 'btnSvuotaCronologia';
+        btnSvuota.textContent = 'ELIMINA CRONOLOGIA';
+        btnSvuota.style.backgroundColor = '#dc3545';
+        btnSvuota.onclick = function() {
+            const cronologia = document.getElementById('cronologiaContainer');
+            if (cronologia) {
+                const elementi = cronologia.querySelectorAll('.input-group');
+                elementi.forEach(elemento => {
+                    const inputTesto = elemento.querySelector('.input');
+                    const inputData = elemento.querySelector('.date-input');
+                    if (inputTesto) {
+                        inputTesto.style.backgroundColor = '#dc3545';
+                        inputTesto.style.borderColor = '#dc3545';
+                    }
+                    if (inputData) {
+                        inputData.style.setProperty('background-color', '#dc3545', 'important');
+                        inputData.style.setProperty('border-color', '#dc3545', 'important');
+                    }
+                    elemento.classList.add('fade-out-delete');
+                });
+                setTimeout(() => {
+                    cronologia.remove();
                     cronologiaHeaderBox.remove();
                     salvaInAutomatico();
-                }
-            };
-            cronologiaHeaderBox.appendChild(cronologiaTitolo);
-            cronologiaHeaderBox.appendChild(btnSvuota);
-            document.getElementById('inputContainer').after(cronologiaHeaderBox);
-        }
-        let cronologia = document.getElementById('cronologiaContainer');
-        if (!cronologia) {
-            cronologia = document.createElement('div');
-            cronologia.id = 'cronologiaContainer';
-            cronologiaHeaderBox.after(cronologia);
-        }
-        return cronologia;
+                }, 500);
+            } else {
+                cronologiaHeaderBox.remove();
+                salvaInAutomatico();
+            }
+        };
+        cronologiaHeaderBox.appendChild(cronologiaTitolo);
+        cronologiaHeaderBox.appendChild(btnSvuota);
+        document.getElementById('inputContainer').after(cronologiaHeaderBox);
     }
+        let cronologia = document.getElementById('cronologiaContainer');
+    if (!cronologia) {
+        cronologia = document.createElement('div');
+        cronologia.id = 'cronologiaContainer';
+        cronologia.style.setProperty('display', 'flex', 'important');
+        cronologia.style.setProperty('flex-direction', 'column', 'important');
+        cronologia.style.setProperty('align-items', 'center', 'important');
+        cronologia.style.setProperty('justify-content', 'center', 'important');
+        cronologia.style.setProperty('width', '100%', 'important');
+        cronologia.style.setProperty('margin', '0 auto', 'important');
+        cronologia.style.setProperty('padding', '0', 'important');
+        cronologiaHeaderBox.after(cronologia);
+    }
+    return cronologia;
+}
     function aggiungiCestinoSingolo() {
         if (inputGroup.querySelector('.delete-single-history')) return;
         const trashBtn = document.createElement('button');
         trashBtn.textContent = '🗑️';
         trashBtn.style.marginLeft = "10px";
-        trashBtn.style.marginTop = "5px";
+        trashBtn.style.marginTop = "0px";
         trashBtn.classList.add('delete-single-history');
         trashBtn.style.backgroundColor = '#dc3545';
-        
         trashBtn.onclick = function() {
             newInput.style.backgroundColor = '#dc3545';
             newInput.style.borderColor = '#dc3545';
@@ -197,7 +209,6 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
             dateInput.disabled = false;
         }
     }
-    applicaStileStato(spuntatoIniziale, false);
     complete.onclick = function(){
         const nuovoStato = complete.dataset.complete !== 'true';
         applicaStileStato(nuovoStato, true);
@@ -219,23 +230,28 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
         setTimeout(() => {
             inputGroup.remove();
             salvaInAutomatico();
-            }, 500);
-        };
-        inputGroup.appendChild(dateInput);
-        inputGroup.appendChild(newInput);
+        }, 500);
+    };
+    inputGroup.appendChild(dateInput);
+    inputGroup.appendChild(newInput);
+    if (spuntatoIniziale) {
+        applicaStileStato(true, false);
+        aggiungiCestinoSingolo();
+        const cronologia = creaStrutturaCronologia();
+        cronologia.appendChild(inputGroup);
+    } else {
+        applicaStileStato(false, false);
         inputGroup.appendChild(complete);
         inputGroup.appendChild(deleteBtn);
-        if (spuntatoIniziale && testoIniziale.trim() !== '') {
-            complete.remove();
-            deleteBtn.remove();
-            aggiungiCestinoSingolo();
-            const cronologia = creaStrutturaCronologia();
-            cronologia.appendChild(inputGroup);
-        } else {
-            document.getElementById('inputContainer').appendChild(inputGroup);
+        const inputContainer = document.getElementById('inputContainer');
+        if (inputContainer) {
+            inputContainer.style.display = "flex";
+            inputContainer.style.flexDirection = "column";
+            inputContainer.style.alignItems = "center";
         }
-        salvaInAutomatico();
-    }
+            inputContainer.appendChild(inputGroup);
+        }
+        }
     // 3. RECUPERO DATI DALLO STORICO
     function caricaDati() {
         isLoading = true;
