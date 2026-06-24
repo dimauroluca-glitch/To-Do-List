@@ -16,7 +16,7 @@ function salvaTodoOffline(nuovoTodo) {
 }
 // 1. SALVATAGGIO AUTOMATICO
 function salvaInAutomatico() {
-    if (isLoading) return;
+    if (isLoading && navigator.onLine) return; 
     const attivi = [];
     const completati = [];
     document.querySelectorAll('#inputContainer .input-group').forEach(group => {
@@ -74,6 +74,7 @@ function salvaInAutomatico() {
     } else {
         console.log("📴 Offline: Dati salvati solo in locale. Sincronizzazione rimandata.");
         localStorage.setItem('ha_modifiche_offline', 'true');
+        isLoading = false;
     }
 }
 // 2. FUNZIONE GENERAZIONE INPUT
@@ -353,6 +354,9 @@ window.addEventListener('offline', () => {
 });
 // 5. CARICAMENTO INIZIALE DEI DATI (Gestione Offline/Online)
 function caricaDatiIniziali() {
+        console.log("🛠️ Modalità Test Locale attiva: uso solo il localStorage.");
+        mostraDatiInInterfaccia();
+        return;
     if (!navigator.onLine) {
         console.log("📴 Offline all'avvio: Carico i dati dal localStorage...");
         mostraDatiInInterfaccia();
@@ -426,14 +430,3 @@ window.addEventListener('online', () => {
         .finally(() => isLoading = false);
     }
 });
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then((registration) => {
-        console.log('🚀 Service Worker registrato con successo con scope:', registration.scope);
-      })
-      .catch((error) => {
-        console.error('❌ Registrazione del Service Worker fallita:', error);
-      });
-  });
-}
