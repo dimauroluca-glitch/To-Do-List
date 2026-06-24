@@ -8,6 +8,12 @@ function ottieniUserId() {
     return userId;
 }
 const MY_USER_ID = ottieniUserId();
+function salvaTodoOffline(nuovoTodo) {
+    let todoOffline = JSON.parse(localStorage.getItem('todos_offline')) || [];
+    todoOffline.push(nuovoTodo);
+    localStorage.setItem('todos_offline', JSON.stringify(todoOffline));
+    alert("Salvato in locale! Verrà inviato al server appena torna internet.");
+}
 // 1. SALVATAGGIO AUTOMATICO
 function salvaInAutomatico() {
     if (isLoading) return;
@@ -40,6 +46,35 @@ function salvaInAutomatico() {
     }
     localStorage.setItem('todo_attivi', JSON.stringify(attivi));
     localStorage.setItem('todo_completati', JSON.stringify(completati));
+    const tuttiGliElementi = [...attivi, ...completati];
+    if (navigator.onLine) {
+        isLoading = true;
+        fetch('/invia-dati', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                userId: MY_USER_ID,
+                elementi: tuttiGliElementi
+            })
+        })
+        .then(response => {
+            if (!response.ok) throw new Error("Errore risposta server");
+            console.log("🟢 Sincronizzato con il server!");
+            localStorage.removeItem('ha_modifiche_offline');
+        })
+        .catch(err => {
+            console.error("🔴 Errore fetch, salvo lo stato offline:", err);
+            localStorage.setItem('ha_modifiche_offline', 'true');
+        })
+        .finally(() => {
+            isLoading = false;
+        });
+    } else {
+        console.log("📴 Offline: Dati salvati solo in locale. Sincronizzazione rimandata.");
+        localStorage.setItem('ha_modifiche_offline', 'true');
+    }
 }
 // 2. FUNZIONE GENERAZIONE INPUT
 function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = ''){
@@ -279,3 +314,126 @@ function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = '
         caricaDati();
         document.getElementById('addInput').addEventListener('click', () => addInput());
     });
+window.addEventListener('online', () => {
+    console.log("📶 Connessione ripristinata! Controllo sincronizzazione...");
+    const haModifiche = localStorage.getItem('ha_modifiche_offline');
+    if (haModifiche === 'true') {
+        console.log("🔄 Trovate modifiche offline. Sincronizzo con il server...");
+        const attivi = JSON.parse(localStorage.getItem('todo_attivi')) || [];
+        const completati = JSON.parse(localStorage.getItem('todo_completati')) || [];
+        const tuttiGliElementi = [...attivi, ...completati];
+        isLoading = true;
+        fetch('/invia-dati', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                userId: MY_USER_ID,
+                elementi: tuttiGliElementi
+            })
+        })
+        .then(response => {
+            if (!response.ok) throw new Error();
+            console.log("🟢 Database MongoDB aggiornato con successo dopo il rientro online!");
+            localStorage.removeItem('ha_modifiche_offline');
+        })
+        .catch(err => {
+            console.error("🔴 Tentativo di sincronizzazione fallito, riproverò al prossimo ritorno online.", err);
+        })
+        .finally(() => {
+            isLoading = false;
+        });
+    } else {
+        console.log("✅ Nessuna modifica offline da sincronizzare.");
+    }
+});
+window.addEventListener('offline', () => {
+    console.log("📴 Sei offline. Le modifiche verranno salvate localmente.");
+});
+// 5. CARICAMENTO INIZIALE DEI DATI (Gestione Offline/Online)
+function caricaDatiIniziali() {
+    if (!navigator.onLine) {
+        console.log("📴 Offline all'avvio: Carico i dati dal localStorage...");
+        mostraDatiInInterfaccia();
+        return;
+    }
+    isLoading = true;
+    fetch('/prendi-dati', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userId: MY_USER_ID })
+    })
+    .then(response => {
+        if (!response.ok) throw new Error("Errore risposta server");
+        return response.json();
+    })
+    .then(data => {
+        if (data && data.elementi) {
+            console.log("🟢 Dati scaricati con successo da MongoDB!");
+            const attivi = data.elementi.filter(el => !el.completato);
+            const completati = data.elementi.filter(el => el.completato);
+            localStorage.setItem('todo_attivi', JSON.stringify(attivi));
+            localStorage.setItem('todo_completati', JSON.stringify(completati));
+            mostraDatiInInterfaccia();
+        }
+    })
+    .catch(err => {
+        console.error("🔴 Impossibile contattare il server, ripiego sul localStorage:", err);
+        mostraDatiInInterfaccia();
+    })
+    .finally(() => {
+        isLoading = false;
+    });
+}
+function mostraDatiInInterfaccia() {
+    document.getElementById('inputContainer').innerHTML = '';
+    const cronologia = document.getElementById('cronologiaContainer');
+    if (cronologia) cronologia.innerHTML = '';
+    const attivi = JSON.parse(localStorage.getItem('todo_attivi')) || [];
+    const completati = JSON.parse(localStorage.getItem('todo_completati')) || [];
+    attivi.forEach(todo => {
+        addInput(todo.testo, false, todo.data);
+    });
+    completati.forEach(todo => {
+        addInput(todo.testo, true, todo.data);
+    });
+}
+document.addEventListener('DOMContentLoaded', caricaDatiIniziali);
+// 6. ASCOLTATORE DI CONNESSIONE IN TEMPO REALE
+window.addEventListener('online', () => {
+    console.log("📶 Connessione ripristinata! Controllo sincronizzazione...");
+    const haModifiche = localStorage.getItem('ha_modifiche_offline');
+    if (haModifiche === 'true') {
+        console.log("🔄 Trovate modifiche offline. Sincronizzo con il server...");
+        const attivi = JSON.parse(localStorage.getItem('todo_attivi')) || [];
+        const completati = JSON.parse(localStorage.getItem('todo_completati')) || [];
+        const tuttiGliElementi = [...attivi, ...completati];
+        isLoading = true;
+        fetch('/invia-dati', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: MY_USER_ID, elementi: tuttiGliElementi })
+        })
+        .then(response => {
+            if (!response.ok) throw new Error();
+            console.log("🟢 Database MongoDB allineato con successo!");
+            localStorage.removeItem('ha_modifiche_offline');
+        })
+        .catch(err => console.error("🔴 Sincronizzazione fallita, riproverò più tardi.", err))
+        .finally(() => isLoading = false);
+    }
+});
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then((registration) => {
+        console.log('🚀 Service Worker registrato con successo con scope:', registration.scope);
+      })
+      .catch((error) => {
+        console.error('❌ Registrazione del Service Worker fallita:', error);
+      });
+  });
+}
