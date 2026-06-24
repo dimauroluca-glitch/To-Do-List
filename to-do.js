@@ -93,9 +93,13 @@ app.post('/programma-notifica', async (req, res) => {
         }
         console.log("📅 Notifica programmata su OneSignal via Backend:", risultato);
         res.status(200).json({ successo: true, risultato });
-    } catch (error) {
+        } catch (error) {
         console.error("Errore generico programmazione OneSignal:", error);
-        res.status(500).send("Errore interno del server notifiche.");
+        res.status(500).json({ 
+            successo: false, 
+            messaggio: "Errore interno del server", 
+            dettaglioErrore: error.message 
+        });
     }
 });
 app.listen(PORT, () => {
