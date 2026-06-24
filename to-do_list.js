@@ -16,7 +16,7 @@ function salvaTodoOffline(nuovoTodo) {
 }
 // 1. SALVATAGGIO AUTOMATICO
 function salvaInAutomatico() {
-    if (isLoading && navigator.onLine) return; 
+    if (isLoading) return; 
     const attivi = [];
     const completati = [];
     document.querySelectorAll('#inputContainer .input-group').forEach(group => {
@@ -46,36 +46,9 @@ function salvaInAutomatico() {
     }
     localStorage.setItem('todo_attivi', JSON.stringify(attivi));
     localStorage.setItem('todo_completati', JSON.stringify(completati));
-    const tuttiGliElementi = [...attivi, ...completati];
-    if (navigator.onLine) {
-        isLoading = true;
-        fetch('/invia-dati', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                userId: MY_USER_ID,
-                elementi: tuttiGliElementi
-            })
-        })
-        .then(response => {
-            if (!response.ok) throw new Error("Errore risposta server");
-            console.log("🟢 Sincronizzato con il server!");
-            localStorage.removeItem('ha_modifiche_offline');
-        })
-        .catch(err => {
-            console.error("🔴 Errore fetch, salvo lo stato offline:", err);
-            localStorage.setItem('ha_modifiche_offline', 'true');
-        })
-        .finally(() => {
-            isLoading = false;
-        });
-    } else {
-        console.log("📴 Offline: Dati salvati solo in locale. Sincronizzazione rimandata.");
-        localStorage.setItem('ha_modifiche_offline', 'true');
-        isLoading = false;
-    }
+    console.log("📴 Salvato localmente nel browser. (Fetch verso il server disattivata in locale)");
+    localStorage.setItem('ha_modifiche_offline', 'true');
+    isLoading = false; 
 }
 // 2. FUNZIONE GENERAZIONE INPUT
 function addInput(testoIniziale = '', spuntatoIniziale = false, dataIniziale = ''){
@@ -355,6 +328,7 @@ window.addEventListener('offline', () => {
 // 5. CARICAMENTO INIZIALE DEI DATI (Gestione Offline/Online)
 function caricaDatiIniziali() {
         console.log("🛠️ Modalità Test Locale attiva: uso solo il localStorage.");
+        isLoading = false;
         mostraDatiInInterfaccia();
         return;
     if (!navigator.onLine) {
