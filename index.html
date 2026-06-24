@@ -4,21 +4,15 @@
     <title>To-Do List</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://onesignal.com" defer></script>
     <script>
-      if (window.location.protocol !== 'file:') {
-          const scriptOneSignal = document.createElement('script');
-          scriptOneSignal.src = "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js";
-          scriptOneSignal.defer = true;
-          document.head.appendChild(scriptOneSignal);
-          window.OneSignalInitOptions = window.OneSignalInitOptions || [];
-          window.OneSignalInitOptions.push(function() {
-              OneSignal.init({
-                  appId: "3ce393c8-7d93-4c37-a87f-a268b6343602",
-              });
-          });
-      } else {
-          console.log("🔒 Modalità desktop (file:///) rilevata. OneSignal rimosso completamente per evitare blocchi.");
-      }
+      window.OneSignalInitOptions = window.OneSignalInitOptions || [];
+      window.OneSignalInitOptions.push(function() {
+        if (window.location.protocol === 'file:') return;
+        OneSignal.init({
+          appId: "3ce393c8-7d93-4c37-a87f-a268b6343602",
+        });
+      });
     </script>
     <style>
         body{
@@ -190,31 +184,31 @@
             padding: 6px 12px;
             cursor: pointer;
         }
-        #cronologiaContainer {
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
-            justify-content: center !important;
-            width: 100% !important;
-            max-width: 100%;
-            box-sizing: border-box;
-            padding: 0;
-            margin: 0 auto !important;
-        }
-        #cronologiaContainer .input-group {
-            display: flex !important;
-            justify-content: center !important;
-            align-items: center !important;
-            width: 100% !important;
-            margin: 10px 0 !important;
-            box-sizing: border-box;
-        }
-        #cronologiaContainer .input {
-            text-align: center !important;
-        }
-        #cronologiaContainer .date-input {
-            text-align: center !important;
-        }
+#cronologiaContainer {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0 auto !important;
+}
+#cronologiaContainer .input-group {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    margin: 10px 0 !important;
+    box-sizing: border-box;
+}
+#cronologiaContainer .input {
+    text-align: center !important;
+}
+#cronologiaContainer .date-input {
+    text-align: center !important;
+}
 @media (max-width: 768px){
     button{
         width: 100%;
