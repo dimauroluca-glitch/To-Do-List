@@ -426,10 +426,3 @@ window.addEventListener('online', () => {
         .finally(() => isLoading = false);
     }
 });
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(() => console.log("🚀 Service Worker attivo per l'offline!"))
-      .catch(err => console.error("❌ Errore SW:", err));
-  });
-}
