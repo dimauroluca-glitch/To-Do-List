@@ -4,20 +4,22 @@
     <title>To-Do List</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-  window.OneSignalInitOptions = window.OneSignalInitOptions || [];
-  window.OneSignalInitOptions.push(function() {
-    if (window.location.protocol === 'file:') {
-        console.log("⚠️ OneSignal disattivato in locale per evitare il blocco dell'applicazione.");
-        return;
-    }
-    OneSignal.init({
-      appId: "3ce393c8-7d93-4c37-a87f-a268b6343602",
-    });
-  });
-</script>
-    <style>
+    <script>
+      if (window.location.protocol !== 'file:') {
+          const scriptOneSignal = document.createElement('script');
+          scriptOneSignal.src = "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js";
+          scriptOneSignal.defer = true;
+          document.head.appendChild(scriptOneSignal);
+          window.OneSignalInitOptions = window.OneSignalInitOptions || [];
+          window.OneSignalInitOptions.push(function() {
+              OneSignal.init({
+                  appId: "3ce393c8-7d93-4c37-a87f-a268b6343602",
+              });
+          });
+      } else {
+          console.log("🔒 Modalità desktop (file:///) rilevata. OneSignal rimosso completamente per evitare blocchi.");
+      }
+    </script>
         body{
             display: flex;
             flex-direction: column;
