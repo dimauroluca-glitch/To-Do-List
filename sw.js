@@ -25,7 +25,9 @@ self.addEventListener('fetch', (event) => {
       if (cachedResponse) {
         return cachedResponse;
       }
-      return fetch(event.request).catch(() => {
+      return fetch(event.request).then((networkResponse) => {
+        return networkResponse;
+      }).catch(() => {
         if (event.request.mode === 'navigate') {
           return caches.match('/index.html');
         }
