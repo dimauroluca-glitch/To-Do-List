@@ -26,6 +26,11 @@ if (!MONGODB_URI) {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
+// 3. ROTTA ESPLICITA PER LA PAGINA PRINCIPALE (Risolve il bug del CSS stampato a schermo)
+app.get('/', (req, res) => {
+    res.setHeader('Content-Type', 'text/html');
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 // 4. ROTTA PER SALVARE LA LISTA
 app.post('/invia-dati', async (req, res) => {
     try {
@@ -39,7 +44,7 @@ app.post('/invia-dati', async (req, res) => {
         res.status(200).send("Dati salvati con successo!");
     } catch (error) {
         console.error("Errore salvataggio:", error);
-        res.status(500).send("Errore durante il salvataggio.");
+        res.status(500).send("Errore crystallization durante il salvataggio.");
     }
 });
 // 5. ROTTA PER RECUPERARE LA LISTA
